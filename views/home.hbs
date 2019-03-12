@@ -1,0 +1,239 @@
+<div class="location-filter">
+    <div class="input-group input-group-lg">
+    <div class="input-group-prepend">
+        <label class="input-group-text" for="">Location</label>
+    </div>
+    <select class="custom-select" id="location-select">
+        <option selected>Choose...</option>
+        {{#each locations}}
+            <option {{isSelected this.value ../location}} value="{{this.value}}">{{this.name}}</option>
+        {{/each}}
+    </select>
+    <script>
+        $(function(){
+            // bind change event to select
+            $('#location-select').on('change', function () {
+                var location = $(this).val(); // get selected value
+                if (location) { // require a URL
+                    window.location = '/?location=' + location; // redirect
+                }
+                return false;
+            });
+        });
+    </script>
+    </div>
+</div>
+
+{{#unless noNew}}
+    <div class="row mb-5 mt-3 book-row">
+        <div class="card book-card">
+        <div class="card-body">
+            <h5 class="card-title">Newly Acquired Items</h5>
+            <div id="carousel-slide-1" class="carousel slide" data-ride="carousel">
+                <div class="carousel-inner">
+                    {{#each newItems}}
+                    <div class="carousel-item {{#unless @index}}active{{/unless}}">
+                        <div class="row justify-content-center">
+                            {{#each this}}
+                                <div class="syn_skipthis col-auto book-div">
+                                    <img class="img img-thumbnail" onerror="this.src='/images/book{{onetwothree @index}}.jpg';"
+                                    src="http://www.syndetics.com/index.php?isbn={{this.isbn}}&upc={{this.UPC}}/lc.gif&client=uncwh">
+                                    <a href="#" data-toggle="modal" data-target="#itemInfoModal" onclick="updateModal('{{safeStr this.isbn}}', '{{safeStr this.UPC}}', '{{safeStr this.title}}', '{{safeStr this.titleFixed}}', '{{safeStr this.authorFixed}}', '{{safeStr this.callNumber}}', '{{safeStr this.location}}', '/images/book{{onetwothree @index}}.jpg')">
+                                        <div class="overlay">
+                                            <div class="text">
+                                                {{this.titleFixed}} - {{this.authorFixed}}
+                                            </div>
+                                        </div>
+                                    </a>
+                                    <div class="availability">
+                                        {{#if this.available}}
+                                            <span class="green"><i class="fas fa-check-circle"></i> Available</span>
+                                        {{else}}
+                                            <span class="red"><i class="fas fa-times-circle"></i> Unavailable</span>
+                                        {{/if}}
+                                    </div>
+                                </div>
+                            {{/each}}
+                        </div>
+                    </div>
+                    {{/each}}
+                </div>
+                <a class="carousel-control-prev" href="#carousel-slide-1" role="button" data-slide="prev">
+                    <span style="color:Black;">
+                        <i class="fas fa-arrow-circle-left fa-3x"></i>
+                    </span>
+                    <span class="sr-only">Previous</span>
+                </a>
+                <a class="carousel-control-next" href="#carousel-slide-1" role="button" data-slide="next">
+                    <span style="color:Black;">
+                        <span class="fas fa-arrow-circle-right fa-3x"></span>
+                    </span>
+                    <span class="sr-only">Next</span>
+                </a>
+            </div>
+        </div>
+        </div>
+    </div>
+{{/unless}}
+
+{{#unless noPop}}
+    <div class="row mb-5 book-row">
+        <div class="card book-card">
+            <div class="card-body">
+                <h5 class="card-title">Most Popular Items</h5>
+                <div id="carousel-slide-2" class="carousel slide" data-ride="carousel">
+                    <div class="carousel-inner">
+                    {{#each popItems}}
+                    <div class="carousel-item {{#unless @index}}active{{/unless}}">
+                        <div class="row justify-content-center">
+                            {{#each this}}
+                                <div class="syn_skipthis col-auto book-div">
+                                    <img class="img img-thumbnail" onerror="this.src='/images/book{{onetwothree @index}}.jpg';"
+                                    src="http://www.syndetics.com/index.php?isbn={{this.isbn}}&upc={{this.UPC}}/lc.gif&client=uncwh">
+                                    <a href="#" data-toggle="modal" data-target="#itemInfoModal" onclick="updateModal('{{safeStr this.isbn}}', '{{safeStr this.UPC}}', '{{safeStr this.title}}', '{{safeStr this.titleFixed}}', '{{safeStr this.authorFixed}}', '{{safeStr this.callNumber}}', '{{safeStr this.location}}', '/images/book{{onetwothree @index}}.jpg')">
+                                        <div class="overlay">
+                                            <div class="text">
+                                                {{this.titleFixed}} - {{this.authorFixed}}
+                                            </div>
+                                        </div>
+                                    </a>
+                                    <div class="availability">
+                                        {{#if this.available}}
+                                            <span class="green"><i class="fas fa-check-circle"></i> Available</span>
+                                        {{else}}
+                                            <span class="red"><i class="fas fa-times-circle"></i> Unavailable</span>
+                                        {{/if}}
+                                    </div>
+                                </div>
+                            {{/each}}
+                        </div>
+                    </div>
+                    {{/each}}
+                    </div>
+                    <a class="carousel-control-prev" href="#carousel-slide-2" role="button" data-slide="prev">
+                        <span style="color:Black;">
+                            <i class="fas fa-arrow-circle-left fa-3x"></i>
+                        </span>
+                        <span class="sr-only">Previous</span>
+                    </a>
+                    <a class="carousel-control-next" href="#carousel-slide-2" role="button" data-slide="next">
+                        <span style="color:Black;">
+                            <span class="fas fa-arrow-circle-right fa-3x"></span>
+                        </span>
+                        <span class="sr-only">Next</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+{{/unless}}
+
+<!-- Modal -->
+<div class="modal fade" id="itemInfoModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="modalTitle">Title</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div id="sendAsTextIframe">
+
+      </div>
+      {{#if showFindIt}}
+        <div id="findItIframe">
+
+        </div>
+      {{/if}}
+      <div id="modalBodyImage" class="modal-body">
+
+      </div>
+      <div id="modalBodyInfo" class="modal-body" style="padding:.3rem;">
+
+      </div>
+      <div id="modalBodyDescription" class="modal-body">
+
+      </div>
+      <div id="sendAsText" class="modal-body">
+
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+    $('#carousel-slide-1').carousel({
+        interval: 10000
+    })
+
+    $('#carousel-slide-2').carousel({ // false until 10 seconds have passed
+        interval: 10000
+    })
+
+    $('#carousel-slide-2').carousel('pause')
+
+    setTimeout(function() {
+        $('#carousel-slide-2').carousel('cycle');
+    }, 5000);
+
+    function sendAsText(url) {
+        $('#sendAsTextIframe').html('' +
+            '<iframe src=\"'+url+'\" width="450" height="550" style="margin-bottom:-90px;" frameborder="0"/>'
+        );
+        $('#findItIframe').html('');
+        $('#modalBodyImage').html('');
+        $('#modalBodyInfo').html('');
+        $('#modalBodyDescription').html('');
+        $('#sendAsText').html('');
+    }
+
+    function findIt(url) {
+        $('#findItIframe').html('' +
+            '<iframe src=\"'+url+'\" width="600" height="850" style="margin-bottom:-90px;" frameborder="0"/>'
+        );
+        $('#sendAsTextIframe').html('');
+        $('#modalBodyImage').html('');
+        $('#modalBodyInfo').html('');
+        $('#modalBodyDescription').html('');
+        $('#sendAsText').html('');
+    }
+
+    function updateModal(isbn, UPC, title, titleFixed, author, callNumber, location, errorImage) {
+        $('#sendAsTextIframe').html('');
+        $('#findItIframe').html('');
+        $('#modalTitle').html(title + ' - ' + author);
+        $('#modalBodyImage').html('<div class="col-auto"><img class="img img-thumbnail" onerror="this.src=\''+errorImage+'\';"'+
+                                 'src="http://www.syndetics.com/index.php?isbn='+isbn+'&upc='+UPC+'/lc.gif&client=uncwh">' +
+                                 '<div class="overlay-modal"><div class="text-modal">' + titleFixed + ' - ' + author +
+                                 '</div></div></div>'
+                                 );
+        if (callNumber) {
+            $('#modalBodyInfo').html('' +
+            '<div class="col-auto" style="text-align:center;"><strong>Call Number</strong>: ' +
+            callNumber +
+            '<br/><strong>Location</strong>: ' +
+            location +
+            '</div>'
+            );
+        }
+
+        location = location.replace(/[']/gi, '\\\'').replace(/["]/gi, '\\"');
+        title = title.replace(/[']/gi, '\\\'').replace(/["]/gi, '\\"');
+        $('#sendAsText').html(''+
+                                 '<img style="margin:10px;" onclick="sendAsText(\'https://twilio.libapps.uncw.edu/sendCallNumber?bookLocation='+location+'&bookCallNumber='+callNumber+'&bookTitle='+title+'\');" src="/images/sendAsTxt.gif"/>' +
+                                 {{#if showFindIt}}
+                                    '<img style="margin:10px;" onclick="findIt(\'https://findit.libapps.uncw.edu/stacks?callNumber='+callNumber+'&collection='+location+'\');" src="/images/FindIT2-Button.png"/>' +
+                                 {{/if}}
+                                 '')
+        $('#modalBodyDescription').html('' +
+        '<p><div id="syn_summary"></div></p>'
+        )
+
+        syn_get_plus();
+    }
+</script>

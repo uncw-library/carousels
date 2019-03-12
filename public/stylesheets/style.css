@@ -1,0 +1,167 @@
+body {
+  font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+  background-color: #e0f4f2;
+}
+
+a {
+  color: #00B7FF;
+}
+
+.green {
+  color: green;
+}
+
+.red {
+  color: red;
+}
+
+.availability {
+  text-align: center;
+  margin-top:2px;
+}
+
+#header {
+  background-color:#008083;
+  margin-bottom:10px;
+}
+
+.book-row, .location-filter {
+  margin: .5rem;
+}
+
+.book-card {
+  width: 100%;
+}
+
+.book-div {
+  width:130px;
+  margin-bottom: 15px;
+}
+
+.card-body {
+  padding: 1.0rem;
+}
+
+.carousel-control-prev {
+  width: 1.5%;
+}
+
+.carousel-control-next {
+  width: 1.5%;
+}
+
+.carousel-inner {
+  height: 190px;
+}
+
+.carousel-control-prev, .carousel-control-next {
+  opacity: .9;
+}
+
+.modal-dialog {
+  max-width: 90%;
+}
+
+#modalBodyImage {
+  margin:auto;
+  width: 200px;
+}
+#modalBodyAuthor {
+  text-align: center;
+}
+
+.overlay {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 15px;
+  right: 0;
+  height: 100%;
+  width: 80%;
+  opacity: 0;
+  transition: .5s ease;
+  background-color: rgba(0, 0, 0, 0.67);
+}
+
+[src="/images/book1.jpg"] + a .overlay,[src="/images/book2.jpg"] + a .overlay,[src="/images/book3.jpg"] + a .overlay{
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 15px;
+  right: 0;
+  height: 100%;
+  width: 80%;
+  opacity: 1 !important;
+  background-color: rgba(0, 0, 0, 0);
+}
+
+.carousel-book:hover .overlay {
+  opacity: 1;
+}
+
+.text {
+  color: white;
+  width: 80%;
+  font-size: 13px;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  -ms-transform: translate(-50%, -50%);
+}
+
+.overlay-modal {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 15px;
+  right: 0;
+  height: 100%;
+  width: 80%;
+  opacity: 0;
+  transition: .5s ease;
+  background-color: rgba(0, 0, 0, 0.67);
+}
+
+[src="/images/book1.jpg"] + .overlay-modal,[src="/images/book2.jpg"] + .overlay-modal,[src="/images/book3.jpg"] + .overlay-modal{
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 15px;
+  right: 0;
+  height: 100%;
+  width: 80%;
+  opacity: 1 !important;
+  background-color: rgba(0, 0, 0, 0);
+}
+
+.carousel-book:hover .overlay-modal {
+  opacity: 1;
+}
+
+.syn_terms {
+  display: none;
+}
+
+.text-modal {
+  color: white;
+  width: 80%;
+  font-size: 16px;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  -ms-transform: translate(-50%, -50%);
+}
+
+#sendAsText,  #findItIframe {
+  text-align: center;
+}
+
+#sendAsText img {
+  cursor: pointer;
+}
+
+#sendAsTextIframe {
+  text-align: center;
+}

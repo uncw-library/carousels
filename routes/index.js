@@ -14,7 +14,7 @@ router.get('/', async (req, res, next) => {
     // create a client for our connection pool
     const sierraClient = await sierraPool.connect();
 
-    const { location } = req.query || 'new';
+    const { location } = req.query || 'gen';
 
     // let's get our new items
     // note that we will need to chunk the array for the purposes of the carousel

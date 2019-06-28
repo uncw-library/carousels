@@ -47,7 +47,7 @@ function getUPC(client, bib) {
 
 function getAddInfo(client, bib) {
   const sql = `
-  SELECT item_status_code,call_number_norm as call_number,location_code, location_name.name as location
+  SELECT is_available_at_library,call_number_norm as call_number,location_code, location_name.name as location
   FROM sierra_view.bib_view
 
   LEFT JOIN sierra_view.bib_record_item_record_link
@@ -73,105 +73,21 @@ function getAddInfo(client, bib) {
   return client.query(sql, values);
 }
 
-function getNewlyAcquiredItems(client, location = 'new') {
+function getNewlyAcquiredBooks(client, location = 'gen') {
   let locationConditions = '';
   let locationCodeField = 'location_code';
   let values = [];
-  let days = (location === 'gen' || location === 'gov') ? '10' : '180';
-  days = (location === 'evideos' || location === 'ebooks') ? '90' : days;
-  if (location === 'audiobooks') return [];
-
-  switch (location) {
-    case 'gen':
-      locationConditions += 'and location_code like $1';
-      values.push('wgi');
-      break;
-    case 'gov':
-      locationConditions += `
-      and (location_code like $1 OR
-      location_code like $2 OR
-      location_code like $3)
-      `;
-      values = ['wdn', 'wdu', 'wdd'];
-      break;
-    case 'juv':
-      locationConditions += `
-      and (location_code like $1 OR
-      location_code like $2 OR
-      location_code like $3 OR
-      location_code like $4)
-      `;
-      values = ['wje', 'wjf', 'wjb', 'wjd'];
-      break;
-    case 'new':
-      locationConditions += 'and location_code like $1';
-      values.push('whi');
-      break;
-    case 'cds':
-      locationConditions += 'and location_code like $1';
-      values.push('wac');
-      break;
-    case 'dvds':
-      locationConditions += `
-      and (location_code like $1 OR
-      location_code like $2)
-      `;
-      values = ['wadvr', 'wadvd'];
-      break;
-    case 'ebooks':
-      locationConditions += 'and bib_record_location.location_code like $1';
-      locationCodeField = 'bib_record_location.location_code';
-      values.push('eb');
-      break;
-    case 'evideos':
-      locationConditions += 'and bib_record_location.location_code like $1';
-      locationCodeField = 'bib_record_location.location_code';
-      values.push('ev');
-      break;
-    default:
-      locationConditions += 'and location_code like $1';
-      values.push('whi');
-      break;
-  }
+  
 
   let sql = '';
 
-  if (location === 'ebooks' || location === 'evideos') {
+ 
+
     sql = `
     SELECT DISTINCT  bib_view.record_num,
     best_title as title,
     best_author as author,
-    ${locationCodeField} as location
-
-    FROM sierra_view.bib_view
-
-    LEFT JOIN sierra_view.bib_record_property
-    ON sierra_view.bib_view.id=sierra_view.bib_record_property.bib_record_id
-
-    LEFT JOIN sierra_view.bib_record_item_record_link
-    ON sierra_view.bib_view.id=sierra_view.bib_record_item_record_link.bib_record_id
-
-
-    LEFT JOIN sierra_view.item_view
-    ON sierra_view.bib_record_item_record_link.item_record_id=sierra_view.item_view.id
-
-    LEFT JOIN sierra_view.bib_record_location
-    ON sierra_view.bib_view.id=sierra_view.bib_record_location.bib_record_id
-
-    WHERE
-    bcode3 ='-'
-
-    ${locationConditions}
-
-    and bib_view.record_creation_date_gmt >= (current_date-${days})
-    limit 100
-    `;
-  } else {
-    sql = `
-    SELECT DISTINCT  bib_view.record_num,
-    best_title as title,
-    best_author as author,
-    ${locationCodeField} as location
+    location_code as location
 
     FROM sierra_view.bib_view
 
@@ -189,9 +105,12 @@ function getNewlyAcquiredItems(client, location = 'new') {
 
     WHERE
     bcode3 ='-'
-
-    ${locationConditions}
-
+    
+    and substr(location_code,1,2) not like 'wd'
+    and substr(location_code,1,2) not like 'td'
+     and substr(location_code,1,2) not like 'wc'
+   
+    and bcode2='a'
     and item_status_code!='p'
     and item_status_code!='$'
     and item_status_code!='i'
@@ -200,19 +119,141 @@ function getNewlyAcquiredItems(client, location = 'new') {
     and item_status_code!='d'
     and item_status_code!='m'
     and item_status_code!='v'
+    and item_status_code!='r'
 
 
-    and item_view.record_creation_date_gmt >= (current_date-${days})
+    and item_view.record_creation_date_gmt >= (current_date-90)
 
     and copy_num='1'
     limit 100
     `;
-  }
+  
 
   return client.query(sql, values);
 }
 
-function getPopularItems(client, location = 'new') {
+
+function getNewlyAcquiredVideos(client, location = 'dvds') {
+  let locationConditions = '';
+  let locationCodeField = 'location_code';
+  let values = [];
+  
+
+  let sql = '';
+
+ 
+
+    sql = `
+    SELECT DISTINCT  bib_view.record_num,
+    best_title as title,
+    best_author as author,
+    location_code as location
+
+    FROM sierra_view.bib_view
+
+    LEFT JOIN sierra_view.bib_record_property
+    ON sierra_view.bib_view.id=sierra_view.bib_record_property.bib_record_id
+
+    LEFT JOIN sierra_view.bib_record_item_record_link
+    ON sierra_view.bib_view.id=sierra_view.bib_record_item_record_link.bib_record_id
+
+
+    LEFT JOIN sierra_view.item_view
+    ON sierra_view.bib_record_item_record_link.item_record_id=sierra_view.item_view.id
+
+
+
+    WHERE
+    bcode3 ='-'
+    
+    and substr(location_code,1,2) not like 'wd'
+    and substr(location_code,1,2) not like 'td'
+     and substr(location_code,1,2) not like 'wc'
+   
+    and bcode2='g'
+    and item_status_code!='p'
+    and item_status_code!='$'
+    and item_status_code!='i'
+    and item_status_code!='u'
+    and item_status_code!='z'
+    and item_status_code!='d'
+    and item_status_code!='m'
+    and item_status_code!='v'
+    and item_status_code!='r'
+
+
+    and item_view.record_creation_date_gmt >= (current_date-90)
+
+    and copy_num='1'
+    limit 100
+    `;
+  
+
+  return client.query(sql, values);
+}
+
+function getNewlyAcquiredMusic(client, location = 'dvds') {
+  let locationConditions = '';
+  let locationCodeField = 'location_code';
+  let values = [];
+  
+
+  let sql = '';
+
+ 
+
+    sql = `
+    SELECT DISTINCT  bib_view.record_num,
+    best_title as title,
+    best_author as author,
+    location_code as location
+
+    FROM sierra_view.bib_view
+
+    LEFT JOIN sierra_view.bib_record_property
+    ON sierra_view.bib_view.id=sierra_view.bib_record_property.bib_record_id
+
+    LEFT JOIN sierra_view.bib_record_item_record_link
+    ON sierra_view.bib_view.id=sierra_view.bib_record_item_record_link.bib_record_id
+
+
+    LEFT JOIN sierra_view.item_view
+    ON sierra_view.bib_record_item_record_link.item_record_id=sierra_view.item_view.id
+
+
+
+    WHERE
+    bcode3 ='-'
+    
+    and substr(location_code,1,2) not like 'wd'
+    and substr(location_code,1,2) not like 'td'
+     and substr(location_code,1,2) not like 'wc'
+   
+    and bcode2='j'
+    and item_status_code!='p'
+    and item_status_code!='$'
+    and item_status_code!='i'
+    and item_status_code!='u'
+    and item_status_code!='z'
+    and item_status_code!='d'
+    and item_status_code!='m'
+    and item_status_code!='v'
+    and item_status_code!='r'
+
+
+    and item_view.record_creation_date_gmt >= (current_date-90)
+
+    and copy_num='1'
+    limit 100
+    `;
+  
+
+  return client.query(sql, values);
+}
+
+
+
+function getPopularItems(client, location = 'gen') {
   let locationConditions = '';
   let values = [];
   const genCondition = (location === 'gen') ? 'and checkout_total>100' : '';
@@ -295,6 +336,7 @@ function getPopularItems(client, location = 'new') {
   and item_status_code!='d'
   and item_status_code!='m'
   and item_status_code!='v'
+  and item_status_code!='r'
 
   and icode2='-'
 
@@ -310,7 +352,9 @@ function getPopularItems(client, location = 'new') {
 
 module.exports = {
   getPopularItems,
-  getNewlyAcquiredItems,
+  getNewlyAcquiredBooks,
+  getNewlyAcquiredVideos,
+  getNewlyAcquiredMusic,
   getISBN,
   getUPC,
   getAddInfo,

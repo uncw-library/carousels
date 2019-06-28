@@ -14,12 +14,44 @@ router.get('/', async (req, res, next) => {
     // create a client for our connection pool
     const sierraClient = await sierraPool.connect();
 
-    const { location } = req.query || 'gen';
+    const location = req.query.location || 'gen';
 
-    // let's get our new items
+    // let's get our new books
     // note that we will need to chunk the array for the purposes of the carousel
-    const newItemsBib = R.path(['rows'], await sierraController.getNewlyAcquiredItems(sierraClient, location));
-    const newItems = (newItemsBib) ? _.chunk(await Promise.all(newItemsBib.map(async (item) => {
+    const newBooksBib = R.path(['rows'], await sierraController.getNewlyAcquiredBooks(sierraClient, location));
+    const newBooks = (newBooksBib) ? _.chunk(await Promise.all(newBooksBib.map(async (item) => {
+      let isbn = R.path(['rows', 0, 'field_content'], await sierraController.getISBN(sierraClient, item.record_num));
+      let UPC = R.path(['rows', 0, 'field_content'], await sierraController.getUPC(sierraClient, item.record_num));
+      const addInfo = R.path(['rows'], await sierraController.getAddInfo(sierraClient, item.record_num));
+      isbn = (isbn && location !== 'gov') ? isbn.match(/([0-9]+[X]?)/gi)[0] : '';
+      UPC = (UPC && location !== 'gov') ? UPC.match(/([0-9]+)/gi)[0] : '';
+
+      // find the first book that matches the location and is available,
+      // or just find available book. If all else fails, grab the first item
+      let itemMatch = addInfo.filter(matchedItem => (matchedItem.location_code === item.location && matchedItem.is_available_at_library === true));
+      itemMatch = (itemMatch.length) ? itemMatch : addInfo.filter(matchedItem => (matchedItem.is_available_at_library === true));
+      itemMatch = (itemMatch.length) ? itemMatch[0] : R.path([0], addInfo);
+
+      return {
+        ...item,
+        isbn,
+        UPC,
+        callNumber: (!(location === 'ebooks' || location === 'evideos'))
+          ? R.path(['call_number'], itemMatch) : (item.url.replace(/[|].+/ig, '')),
+        available: ((R.path(['is_available_at_library'], itemMatch) === true)
+          || location === 'ebooks'
+          || location === 'evideos'
+          || location === 'audiobooks'),
+        location: R.path(['location'], itemMatch),
+        titleFixed: (item.title.length >= 50) ? `${item.title.substring(0, 50)}...` : item.title,
+        authorFixed: (item.author.length >= 25) ? `${item.author.substring(0, 25)}...` : item.author,
+      };
+    })), c.ITEMS_PER_SLIDE) : [[]];
+
+        // let's get our new videos
+    // note that we will need to chunk the array for the purposes of the carousel
+    const newVideosBib = R.path(['rows'], await sierraController.getNewlyAcquiredVideos(sierraClient, location));
+    const newVideos = (newVideosBib) ? _.chunk(await Promise.all(newVideosBib.map(async (item) => {
       let isbn = R.path(['rows', 0, 'field_content'], await sierraController.getISBN(sierraClient, item.record_num));
       let UPC = R.path(['rows', 0, 'field_content'], await sierraController.getUPC(sierraClient, item.record_num));
       const addInfo = R.path(['rows'], await sierraController.getAddInfo(sierraClient, item.record_num));
@@ -28,16 +60,49 @@ router.get('/', async (req, res, next) => {
 
       // find the first item that matches the location and is available,
       // or just find available item. If all else fails, grab the first item
-      let itemMatch = addInfo.filter(matchedItem => (matchedItem.location_code === item.location && matchedItem.item_status_code === '-'));
-      itemMatch = (itemMatch.length) ? itemMatch : addInfo.filter(matchedItem => (matchedItem.item_status_code === '-'));
+      let itemMatch = addInfo.filter(matchedItem => (matchedItem.location_code === item.location && matchedItem.is_available_at_library === true));
+      itemMatch = (itemMatch.length) ? itemMatch : addInfo.filter(matchedItem => (matchedItem.is_available_at_library === true));
       itemMatch = (itemMatch.length) ? itemMatch[0] : R.path([0], addInfo);
 
       return {
         ...item,
         isbn,
         UPC,
-        callNumber: R.path(['call_number'], itemMatch),
-        available: ((R.path(['item_status_code'], itemMatch) === '-')
+        callNumber: (!(location === 'ebooks' || location === 'evideos'))
+          ? R.path(['call_number'], itemMatch) : (item.url.replace(/[|].+/ig, '')),
+        available: ((R.path(['is_available_at_library'], itemMatch) === true)
+          || location === 'ebooks'
+          || location === 'evideos'
+          || location === 'audiobooks'),
+        location: R.path(['location'], itemMatch),
+        titleFixed: (item.title.length >= 50) ? `${item.title.substring(0, 50)}...` : item.title,
+        authorFixed: (item.author.length >= 25) ? `${item.author.substring(0, 25)}...` : item.author,
+      };
+    })), c.ITEMS_PER_SLIDE) : [[]];
+
+       // let's get our new music
+    // note that we will need to chunk the array for the purposes of the carousel
+    const newMusicBib = R.path(['rows'], await sierraController.getNewlyAcquiredMusic(sierraClient, location));
+    const newMusic = (newMusicBib) ? _.chunk(await Promise.all(newMusicBib.map(async (item) => {
+      let isbn = R.path(['rows', 0, 'field_content'], await sierraController.getISBN(sierraClient, item.record_num));
+      let UPC = R.path(['rows', 0, 'field_content'], await sierraController.getUPC(sierraClient, item.record_num));
+      const addInfo = R.path(['rows'], await sierraController.getAddInfo(sierraClient, item.record_num));
+      isbn = (isbn && location !== 'gov') ? isbn.match(/([0-9]+[X]?)/gi)[0] : '';
+      UPC = (UPC && location !== 'gov') ? UPC.match(/([0-9]+)/gi)[0] : '';
+
+      // find the first item that matches the location and is available,
+      // or just find available item. If all else fails, grab the first item
+      let itemMatch = addInfo.filter(matchedItem => (matchedItem.location_code === item.location && matchedItem.is_available_at_library === true));
+      itemMatch = (itemMatch.length) ? itemMatch : addInfo.filter(matchedItem => (matchedItem.is_available_at_library === true));
+      itemMatch = (itemMatch.length) ? itemMatch[0] : R.path([0], addInfo);
+
+      return {
+        ...item,
+        isbn,
+        UPC,
+        callNumber: (!(location === 'ebooks' || location === 'evideos'))
+          ? R.path(['call_number'], itemMatch) : (item.url.replace(/[|].+/ig, '')),
+        available: ((R.path(['is_available_at_library'], itemMatch) === true)
           || location === 'ebooks'
           || location === 'evideos'
           || location === 'audiobooks'),
@@ -58,8 +123,8 @@ router.get('/', async (req, res, next) => {
 
       // find the first item that matches the location and is available,
       // or just find available item. If all else fails, grab the first item
-      let itemMatch = addInfo.filter(matchedItem => (matchedItem.location_code === item.location && matchedItem.item_status_code === '-'));
-      itemMatch = (itemMatch.length) ? itemMatch : addInfo.filter(matchedItem => (matchedItem.item_status_code === '-'));
+      let itemMatch = addInfo.filter(matchedItem => (matchedItem.location_code === item.location && matchedItem.is_available_at_library === true));
+      itemMatch = (itemMatch.length) ? itemMatch : addInfo.filter(matchedItem => (matchedItem.is_available_at_library === true));
       itemMatch = (itemMatch.length) ? itemMatch[0] : R.path([0], addInfo);
 
       return {
@@ -67,7 +132,7 @@ router.get('/', async (req, res, next) => {
         isbn,
         UPC,
         callNumber: R.path(['call_number'], itemMatch),
-        available: ((R.path(['item_status_code'], itemMatch) === '-')
+        available: ((R.path(['is_available_at_library'], itemMatch) === true)
           || location === 'ebooks'
           || location === 'evideos'
           || location === 'audiobooks'),
@@ -95,13 +160,15 @@ router.get('/', async (req, res, next) => {
 
     res.render('home', {
       title: 'Readbox',
-      newItems,
+      newBooks,
+      newVideos,
+      newMusic,
       popItems,
       locations,
       location: location || 'new',
-      showFindIt: (location === 'gen'),
+      showFindIt: (location !== 'ebooks' && location !== 'evideos'),
       noPop: (location === 'ebooks' || location === 'evideos'),
-      noNew: (location === 'audiobooks'),
+      //noNew: (location === 'audiobooks'),
     });
   } catch (e) {
     console.log(e);

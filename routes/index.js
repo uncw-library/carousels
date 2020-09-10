@@ -45,6 +45,7 @@ router.get('/', async (req, res, next) => {
         location: R.path(['location'], itemMatch),
         titleFixed: (item.title.length >= 50) ? `${item.title.substring(0, 50)}...` : item.title,
         authorFixed: (item.author.length >= 25) ? `${item.author.substring(0, 25)}...` : item.author,
+     
       };
     })), c.ITEMS_PER_SLIDE) : [[]];
 
@@ -77,6 +78,7 @@ router.get('/', async (req, res, next) => {
         location: R.path(['location'], itemMatch),
         titleFixed: (item.title.length >= 50) ? `${item.title.substring(0, 50)}...` : item.title,
         authorFixed: (item.author.length >= 25) ? `${item.author.substring(0, 25)}...` : item.author,
+       
       };
     })), c.ITEMS_PER_SLIDE) : [[]];
 
@@ -109,6 +111,7 @@ router.get('/', async (req, res, next) => {
         location: R.path(['location'], itemMatch),
         titleFixed: (item.title.length >= 50) ? `${item.title.substring(0, 50)}...` : item.title,
         authorFixed: (item.author.length >= 25) ? `${item.author.substring(0, 25)}...` : item.author,
+       
       };
     })), c.ITEMS_PER_SLIDE) : [[]];
 
@@ -139,6 +142,7 @@ router.get('/', async (req, res, next) => {
         location: R.path(['location'], itemMatch),
         titleFixed: (item.title.length >= 50) ? `${item.title.substring(0, 50)}...` : item.title,
         authorFixed: (item.author.length >= 25) ? `${item.author.substring(0, 25)}...` : item.author,
+        
       };
     })), c.ITEMS_PER_SLIDE) : [[]];
 

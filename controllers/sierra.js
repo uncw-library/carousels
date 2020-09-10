@@ -87,7 +87,8 @@ function getNewlyAcquiredBooks(client, location = 'gen') {
     SELECT DISTINCT  bib_view.record_num,
     best_title as title,
     best_author as author,
-    location_code as location
+    location_code as location,
+    bib_view.record_num as recordnum
 
     FROM sierra_view.bib_view
 
@@ -147,7 +148,8 @@ function getNewlyAcquiredVideos(client, location = 'dvds') {
     SELECT DISTINCT  bib_view.record_num,
     best_title as title,
     best_author as author,
-    location_code as location
+    location_code as location,
+    bib_view.record_num as recordnum
 
     FROM sierra_view.bib_view
 
@@ -157,19 +159,14 @@ function getNewlyAcquiredVideos(client, location = 'dvds') {
     LEFT JOIN sierra_view.bib_record_item_record_link
     ON sierra_view.bib_view.id=sierra_view.bib_record_item_record_link.bib_record_id
 
-
     LEFT JOIN sierra_view.item_view
     ON sierra_view.bib_record_item_record_link.item_record_id=sierra_view.item_view.id
 
-
-
     WHERE
     bcode3 ='-'
-    
     and substr(location_code,1,2) not like 'wd'
     and substr(location_code,1,2) not like 'td'
-     and substr(location_code,1,2) not like 'wc'
-   
+    and substr(location_code,1,2) not like 'wc'
     and bcode2='g'
     and item_status_code!='p'
     and item_status_code!='$'
@@ -180,12 +177,32 @@ function getNewlyAcquiredVideos(client, location = 'dvds') {
     and item_status_code!='m'
     and item_status_code!='v'
     and item_status_code!='r'
-
-
     and item_view.record_creation_date_gmt >= (current_date-90)
 
     and copy_num='1'
-    limit 100
+    
+	--union 
+	--SELECT DISTINCT  bib_view.record_num,
+    --best_title as title,
+    --best_author as author,
+    --location_code as location,
+    --bib_view.record_num as recordnum
+
+    --FROM sierra_view.bib_view
+
+    --LEFT JOIN sierra_view.bib_record_property
+    --ON sierra_view.bib_view.id=sierra_view.bib_record_property.bib_record_id
+	
+	--LEFT JOIN sierra_view.bib_record_location
+    --ON sierra_view.bib_view.id=sierra_view.bib_record_location.bib_record_id
+
+    --WHERE
+    --bcode3 ='-'
+    --and location_code='ev'
+    --and bcode2='g'
+    --and cataloging_date_gmt >= (current_date-50)
+  
+  --  limit 100
     `;
   
 
@@ -206,7 +223,8 @@ function getNewlyAcquiredMusic(client, location = 'dvds') {
     SELECT DISTINCT  bib_view.record_num,
     best_title as title,
     best_author as author,
-    location_code as location
+    location_code as location,
+    bib_view.record_num as recordnum
 
     FROM sierra_view.bib_view
 

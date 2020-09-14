@@ -55,7 +55,8 @@ function getNewlyAcquiredBooks (client, location = 'gen') {
       bib_view.record_num,
       best_title as title,
       best_author as author,
-      location_code as location
+      location_code as location,
+      bib_view.record_num as recordnum
     FROM sierra_view.bib_view
     LEFT JOIN sierra_view.bib_record_property
       ON sierra_view.bib_view.id=sierra_view.bib_record_property.bib_record_id
@@ -92,7 +93,8 @@ function getNewlyAcquiredVideos (client, location = 'dvds') {
       bib_view.record_num,
       best_title as title,
       best_author as author,
-      location_code as location
+      location_code as location,
+      bib_view.record_num as recordnum
     FROM sierra_view.bib_view
     LEFT JOIN sierra_view.bib_record_property
       ON sierra_view.bib_view.id=sierra_view.bib_record_property.bib_record_id
@@ -117,7 +119,6 @@ function getNewlyAcquiredVideos (client, location = 'dvds') {
       and item_status_code!='r'
       and item_view.record_creation_date_gmt >= (current_date-90)
       and copy_num='1'
-    LIMIT 100
   `
   return client.query(sql, values)
 }
@@ -129,7 +130,8 @@ function getNewlyAcquiredMusic (client, location = 'dvds') {
       bib_view.record_num,
       best_title as title,
       best_author as author,
-      location_code as location
+      location_code as location,
+      bib_view.record_num as recordnum
     FROM sierra_view.bib_view
     LEFT JOIN sierra_view.bib_record_property
       ON sierra_view.bib_view.id=sierra_view.bib_record_property.bib_record_id

@@ -57,6 +57,12 @@ Handlebars.registerHelper('onetwothree', index => (index % 3) + 1)
 // used for setting the value of a select input
 Handlebars.registerHelper('isSelected', (value1, value2) => (value1 === value2 ? 'selected' : ''))
 
+// used for setting the value of a select input
+Handlebars.registerHelper('changeStr',  (value) =>  
+(value === true ? '<span class="green"><i class="fas fa-check-circle"></i> Not Checked Out</span>' 
+: '<span class="red"><i class="fas fa-times-circle"></i> Checked Out</span>')
+);
+
 // used for making strings safe for JS
 Handlebars.registerHelper('safeStr', (str) => {
   const res = (str) ? str.replace(/[']/gi, "\\'") : ''

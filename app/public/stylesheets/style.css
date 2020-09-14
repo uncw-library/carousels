@@ -83,7 +83,7 @@ a {
   background-color: rgba(0, 0, 0, 0.67);
 }
 
-[src="/images/book1.jpg"] + a .overlay,[src="/images/book2.jpg"] + a .overlay,[src="/images/book3.jpg"] + a .overlay{
+[src="images/book1.jpg"] + a .overlay,[src="images/book2.jpg"] + a .overlay,[src="images/book3.jpg"] + a .overlay{
   position: absolute;
   top: 0;
   bottom: 0;
@@ -123,7 +123,7 @@ a {
   background-color: rgba(0, 0, 0, 0.67);
 }
 
-[src="/images/book1.jpg"] + .overlay-modal,[src="/images/book2.jpg"] + .overlay-modal,[src="/images/book3.jpg"] + .overlay-modal{
+[src="images/book1.jpg"] + .overlay-modal,[src="images/book2.jpg"] + .overlay-modal,[src="images/book3.jpg"] + .overlay-modal{
   position: absolute;
   top: 0;
   bottom: 0;
@@ -163,5 +163,9 @@ a {
 }
 
 #sendAsTextIframe {
+  text-align: center;
+}
+
+#openCatalog {
   text-align: center;
 }

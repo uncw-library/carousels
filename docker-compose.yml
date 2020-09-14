@@ -1,9 +1,14 @@
-version: '2'
+version: '3.7'
 services:
-  readbox:
-    image: libapps-admin.uncw.edu:8000/randall-dev/readbox
+  new-titles:
+    build: .
+    container_name: new-titles
+    ports:
+      - "8009:3000"
+    env_file: .env
+    volumes:
+      - ./app/:/usr/src/app/
+    command: npm run dev
+    # command: npm start
+    # command: npm test
     restart: always
-    environment:
-      SIERRA_USER: ChangeMe!
-      SIERRA_PASS: ChangeMe!
-      NODE_ENV: production

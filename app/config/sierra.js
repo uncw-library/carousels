@@ -1,4 +1,4 @@
-const pg = require('pg');
+const pg = require('pg')
 
 /* create a connection pool to our Sierra database
  The .query method will connect and release connections to the pool
@@ -9,8 +9,11 @@ const client = new pg.Pool({
   database: 'iii',
   port: 1032,
   host: 'sierra-db.uncw.edu',
-  ssl: true,
-  max: 2,
-});
+  ssl: {
+    rejectUnauthorized: false
+  },
 
-module.exports = client;
+  max: 2,
+})
+
+module.exports = client

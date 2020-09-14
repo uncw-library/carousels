@@ -76,6 +76,8 @@ async function spaghetti (req, res, next) {
       }
     })), ITEMS_PER_SLIDE) : [[]]
 
+
+
     // let's get our new music
     // note that we will need to chunk the array for the purposes of the carousel
     const newMusicBib = R.path(['rows'], await queries.getNewlyAcquiredMusic(sierraClient, location))
@@ -107,6 +109,7 @@ async function spaghetti (req, res, next) {
         authorFixed: (item.author.length >= 25) ? `${item.author.substring(0, 25)}...` : item.author
       }
     })), ITEMS_PER_SLIDE) : [[]]
+
 
     // let's get our popular items
     const popItemsBib = R.path(['rows'], await queries.getPopularItems(sierraClient, location))

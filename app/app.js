@@ -7,7 +7,7 @@ const Handlebars = require('hbs')
 const logger = require('morgan')
 const path = require('path')
 
-const indexRouter = require('./routes/index')
+const indexRouter = require('./routes')
 
 
 const app = express()

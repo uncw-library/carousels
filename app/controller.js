@@ -2,7 +2,7 @@ const R = require('ramda')
 const _ = require('lodash')
 
 const queries = require('./queries')
-const sierraPool = require('./config/sierra')
+const sierraPool = require('./sierra')
 
 const ITEMS_PER_SLIDE = 5
 

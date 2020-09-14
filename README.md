@@ -1,6 +1,3 @@
-# Copied another project's readme to serve as a template
-
-
 ## New Titles
 
 This repo builds an Express app.  Currently it is linked on the drupal7 mainsite frontpage, as well as on a freestanding kiosk.

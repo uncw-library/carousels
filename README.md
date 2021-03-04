@@ -7,7 +7,7 @@ The app returns an html pages with carousels of recently added books, videos, an
 
 ### To build a dev box
 
-  - Make a file at "new-bento/.env" with contents:
+  - Make a file at "new-title/.env" with contents:
 
 ```
 SIERRA_USER=ActualUser
@@ -39,12 +39,12 @@ docker-compose up --build
 
 #### To run tests on dev box
 
-  - `docker-compose exec bento npm run test`
+  - `docker-compose exec new-titles npm run test`
   - (none yet)
 
 #### To lint the dev box
 
-  - `docker-compose exec bento npx eslint .`
+  - `docker-compose exec new-titles npx eslint .`
 
 
 ### To build a prod box

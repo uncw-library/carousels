@@ -39,13 +39,14 @@ docker-compose up --build
 
 #### To run tests on dev box
 
-  - `docker-compose exec new-titles npm run test`
+  - `npm install --only=dev`
+  - `npm run test`
   - (none yet)
 
 #### To lint the dev box
 
-  - `docker-compose exec new-titles npx eslint .`
-
+  - `npm install --only=dev`
+  - `npx eslint app/`
 
 ### To build a prod box
 

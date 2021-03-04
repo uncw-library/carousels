@@ -79,7 +79,7 @@ function getNewlyAcquiredBooks (client, location = 'gen') {
       and item_status_code!='m'
       and item_status_code!='v'
       and item_status_code!='r'
-      and item_view.record_creation_date_gmt >= (current_date-90)
+      and item_view.record_creation_date_gmt >= (current_date-30)
       and copy_num='1'
     LIMIT 100
   `

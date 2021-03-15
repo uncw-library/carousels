@@ -9,7 +9,6 @@ const path = require('path')
 
 const indexRouter = require('./routes')
 
-
 const app = express()
 
 app.set('views', path.join(__dirname, 'views'))
@@ -23,7 +22,6 @@ app.use(express.json())
 app.use(express.urlencoded({ extended: false }))
 app.use(cookieParser())
 app.use(express.static(path.join(__dirname, 'public')))
-
 
 app.use('/', indexRouter)
 
@@ -58,10 +56,10 @@ Handlebars.registerHelper('onetwothree', index => (index % 3) + 1)
 Handlebars.registerHelper('isSelected', (value1, value2) => (value1 === value2 ? 'selected' : ''))
 
 // used for setting the value of a select input
-Handlebars.registerHelper('changeStr',  (value) =>  
-(value === true ? '<span class="green"><i class="fas fa-check-circle"></i> Not Checked Out</span>' 
-: '<span class="red"><i class="fas fa-times-circle"></i> Checked Out</span>')
-);
+Handlebars.registerHelper('changeStr', (value) =>
+  (value === true ? '<span class="green"><i class="fas fa-check-circle"></i> Not Checked Out</span>'
+    : '<span class="red"><i class="fas fa-times-circle"></i> Checked Out</span>')
+)
 
 // used for making strings safe for JS
 Handlebars.registerHelper('safeStr', (str) => {

@@ -10,7 +10,7 @@ const pool = new Pool({
   ssl: {
     rejectUnauthorized: false
   },
-  max: 1,
+  max: 5,
   idleTimeoutMillis: 30000,
   connectionTimeoutMillis: 36000
 })
@@ -20,4 +20,3 @@ module.exports = {
     return pool.query(text, params, next)
   }
 }
-

@@ -1,55 +1,57 @@
-function getISBN (sierra, bib) {
+async function getISBN (sierra, bib) {
   const values = [bib]
   const sql = `
     SELECT DISTINCT varfield_view.field_content
     FROM sierra_view.bib_view
     LEFT JOIN sierra_view.varfield_view
-      ON sierra_view.varfield_view.record_id=sierra_view.bib_view.id
+      ON sierra_view.varfield_view.record_id = sierra_view.bib_view.id
     WHERE
-      marc_tag='020'
-      AND sierra_view.bib_view.record_num=$1
+      marc_tag = '020'
+      AND sierra_view.bib_view.record_num = $1
     LIMIT 1
   `
-  return sierra.query(sql, values)
+  return await sierra.query(sql, values)
 }
 
-function getUPC (sierra, bib) {
+async function getUPC (sierra, bib) {
   const values = [bib]
   const sql = `
     SELECT DISTINCT field_content
     FROM sierra_view.bib_view
     LEFT JOIN sierra_view.varfield_view
-      ON sierra_view.varfield_view.record_id=sierra_view.bib_view.id
+      ON sierra_view.varfield_view.record_id = sierra_view.bib_view.id
     WHERE
-      marc_tag='024'
-      AND sierra_view.bib_view.record_num=$1
+      marc_tag = '024'
+      AND sierra_view.bib_view.record_num = $1
     limit 1
   `
-  return sierra.query(sql, values)
+  return await sierra.query(sql, values)
 }
 
-function getAddInfo (sierra, bib) {
+async function getAddInfo (sierra, bib) {
   const values = [bib]
   const sql = `
-    SELECT is_available_at_library,call_number_norm as call_number,location_code, location_name.name as location
+    SELECT is_available_at_library,
+      call_number_norm as call_number,
+      location_code,
+      location_name.name as location
     FROM sierra_view.bib_view
     LEFT JOIN sierra_view.bib_record_item_record_link
-      ON sierra_view.bib_view.id=sierra_view.bib_record_item_record_link.bib_record_id
+      ON sierra_view.bib_view.id = sierra_view.bib_record_item_record_link.bib_record_id
     LEFT JOIN sierra_view.item_view
-      ON sierra_view.bib_record_item_record_link.item_record_id=sierra_view.item_view.id
+      ON sierra_view.bib_record_item_record_link.item_record_id = sierra_view.item_view.id
     LEFT JOIN sierra_view.item_record_property
-      ON sierra_view.item_record_property.item_record_id=sierra_view.item_view.id
+      ON sierra_view.item_record_property.item_record_id = sierra_view.item_view.id
     LEFT JOIN sierra_view.location
-      ON sierra_view.location.code=item_view.location_code
+      ON sierra_view.location.code = item_view.location_code
     LEFT JOIN sierra_view.location_name
-      ON sierra_view.location_name.location_id=location.id
-    WHERE bib_view.record_num=$1
+      ON sierra_view.location_name.location_id = location.id
+    WHERE bib_view.record_num = $1
   `
-  return sierra.query(sql, values)
+  return await sierra.query(sql, values)
 }
 
-function getNewlyAcquiredBooks (sierra, location = 'gen') {
-  const values = []
+async function getNewBooks (sierra, location = 'gen') {
   const sql = `
     SELECT DISTINCT
       bib_view.record_num,
@@ -59,160 +61,95 @@ function getNewlyAcquiredBooks (sierra, location = 'gen') {
       bib_view.record_num as recordnum
     FROM sierra_view.bib_view
     LEFT JOIN sierra_view.bib_record_property
-      ON sierra_view.bib_view.id=sierra_view.bib_record_property.bib_record_id
+      ON sierra_view.bib_view.id = sierra_view.bib_record_property.bib_record_id
     LEFT JOIN sierra_view.bib_record_item_record_link
-      ON sierra_view.bib_view.id=sierra_view.bib_record_item_record_link.bib_record_id
+      ON sierra_view.bib_view.id = sierra_view.bib_record_item_record_link.bib_record_id
     LEFT JOIN sierra_view.item_view
-      ON sierra_view.bib_record_item_record_link.item_record_id=sierra_view.item_view.id
+      ON sierra_view.bib_record_item_record_link.item_record_id = sierra_view.item_view.id
     WHERE
-      bcode3 ='-'
-      and substr(location_code,1,2) not like 'wd'
-      and substr(location_code,1,2) not like 'td'
-      and substr(location_code,1,2) not like 'wc'
-      and bcode2='a'
-      and item_status_code!='p'
-      and item_status_code!='$'
-      and item_status_code!='i'
-      and item_status_code!='u'
-      and item_status_code!='z'
-      and item_status_code!='d'
-      and item_status_code!='m'
-      and item_status_code!='v'
-      and item_status_code!='r'
-      and item_view.record_creation_date_gmt >= (current_date-30)
-      and copy_num='1'
+      bcode3 = '-'
+      AND substr(location_code,1,2) NOT IN ('wd', 'td', 'wc')
+      AND bcode2 = 'a'
+      AND item_status_code NOT IN ('p', '$', 'i', 'u', 'z', 'd', 'm', 'v', 'r')
+      AND item_view.record_creation_date_gmt >= (current_date-30)
+      AND copy_num = '1'
+    LIMIT 50
+  `
+  return await sierra.query(sql)
+}
+
+async function getNewVideos (sierra, location = 'dvds') {
+  const sql = `
+    SELECT DISTINCT
+      bib_view.record_num,
+      best_title as title,
+      best_author as author,
+      location_code as location,
+      bib_view.record_num as recordnum
+    FROM sierra_view.bib_view
+    LEFT JOIN sierra_view.bib_record_property
+      ON sierra_view.bib_view.id = sierra_view.bib_record_property.bib_record_id
+    LEFT JOIN sierra_view.bib_record_item_record_link
+      ON sierra_view.bib_view.id = sierra_view.bib_record_item_record_link.bib_record_id
+    LEFT JOIN sierra_view.item_view
+      ON sierra_view.bib_record_item_record_link.item_record_id = sierra_view.item_view.id
+    WHERE
+      bcode3 = '-'
+      AND substr(location_code,1,2) NOT IN ('wd', 'td', 'wc')
+      AND bcode2 = 'g'
+      AND item_status_code NOT IN ('p', '$', 'i', 'u', 'z', 'd', 'm', 'v', 'r')
+      AND item_view.record_creation_date_gmt >= (current_date-90)
+      AND copy_num = '1'
+  `
+  return await sierra.query(sql)
+}
+
+function getNewMusic (sierra, location = 'dvds') {
+  const sql = `
+    SELECT DISTINCT
+      bib_view.record_num,
+      best_title as title,
+      best_author as author,
+      location_code as location,
+      bib_view.record_num as recordnum
+    FROM sierra_view.bib_view
+    LEFT JOIN sierra_view.bib_record_property
+      ON sierra_view.bib_view.id = sierra_view.bib_record_property.bib_record_id
+    LEFT JOIN sierra_view.bib_record_item_record_link
+      ON sierra_view.bib_view.id = sierra_view.bib_record_item_record_link.bib_record_id
+    LEFT JOIN sierra_view.item_view
+      ON sierra_view.bib_record_item_record_link.item_record_id = sierra_view.item_view.id
+    WHERE
+      bcode3 = '-'
+      AND substr(location_code,1,2) NOT IN ('wd', 'td', 'wc')
+      AND bcode2 = 'j'
+      AND item_status_code NOT IN ('p', '$', 'i', 'u', 'z', 'd', 'm', 'v', 'r')
+      AND item_view.record_creation_date_gmt >= (current_date-90)
+      AND copy_num='1'
     LIMIT 100
   `
-  return sierra.query(sql, values)
-}
-
-function getNewlyAcquiredVideos (sierra, location = 'dvds') {
-  const values = []
-  const sql = `
-    SELECT DISTINCT
-      bib_view.record_num,
-      best_title as title,
-      best_author as author,
-      location_code as location,
-      bib_view.record_num as recordnum
-    FROM sierra_view.bib_view
-    LEFT JOIN sierra_view.bib_record_property
-      ON sierra_view.bib_view.id=sierra_view.bib_record_property.bib_record_id
-    LEFT JOIN sierra_view.bib_record_item_record_link
-      ON sierra_view.bib_view.id=sierra_view.bib_record_item_record_link.bib_record_id
-    LEFT JOIN sierra_view.item_view
-      ON sierra_view.bib_record_item_record_link.item_record_id=sierra_view.item_view.id
-    WHERE
-      bcode3 ='-'
-      and substr(location_code,1,2) not like 'wd'
-      and substr(location_code,1,2) not like 'td'
-      and substr(location_code,1,2) not like 'wc'
-      and bcode2='g'
-      and item_status_code!='p'
-      and item_status_code!='$'
-      and item_status_code!='i'
-      and item_status_code!='u'
-      and item_status_code!='z'
-      and item_status_code!='d'
-      and item_status_code!='m'
-      and item_status_code!='v'
-      and item_status_code!='r'
-      and item_view.record_creation_date_gmt >= (current_date-90)
-      and copy_num='1'
-  `
-  return sierra.query(sql, values)
-}
-
-function getNewlyAcquiredMusic (sierra, location = 'dvds') {
-  const values = []
-  const sql = `
-    SELECT DISTINCT
-      bib_view.record_num,
-      best_title as title,
-      best_author as author,
-      location_code as location,
-      bib_view.record_num as recordnum
-    FROM sierra_view.bib_view
-    LEFT JOIN sierra_view.bib_record_property
-      ON sierra_view.bib_view.id=sierra_view.bib_record_property.bib_record_id
-    LEFT JOIN sierra_view.bib_record_item_record_link
-      ON sierra_view.bib_view.id=sierra_view.bib_record_item_record_link.bib_record_id
-    LEFT JOIN sierra_view.item_view
-      ON sierra_view.bib_record_item_record_link.item_record_id=sierra_view.item_view.id
-    WHERE
-      bcode3 ='-'
-      and substr(location_code,1,2) not like 'wd'
-      and substr(location_code,1,2) not like 'td'
-      and substr(location_code,1,2) not like 'wc'
-      and bcode2='j'
-      and item_status_code!='p'
-      and item_status_code!='$'
-      and item_status_code!='i'
-      and item_status_code!='u'
-      and item_status_code!='z'
-      and item_status_code!='d'
-      and item_status_code!='m'
-      and item_status_code!='v'
-      and item_status_code!='r'
-      and item_view.record_creation_date_gmt >= (current_date-90)
-      and copy_num='1'
-    LIMIT 100
-  `
-  return sierra.query(sql, values)
+  return sierra.query(sql)
 }
 
 function getPopularItems (sierra, location = 'gen') {
-  let values = []
-  let locationConditions = ''
-  const genCondition = (location === 'gen') ? 'and checkout_total>100' : ''
-  if (location === 'ebooks' || location === 'evideos') return []
-
-  switch (location) {
-    case 'gen':
-      locationConditions += 'and location_code like $1'
-      values.push('wgi')
-      break
-    case 'gov':
-      locationConditions += `
-      and (location_code like $1 OR
-      location_code like $2 OR
-      location_code like $3)
-      `
-      values = ['wdn', 'wdu', 'wdd']
-      break
-    case 'juv':
-      locationConditions += `
-      and (location_code like $1 OR
-      location_code like $2 OR
-      location_code like $3 OR
-      location_code like $4)
-      `
-      values = ['wje', 'wjf', 'wjb', 'wjd']
-      break
-    case 'new':
-      locationConditions += 'and location_code like $1'
-      values.push('whi')
-      break
-    case 'cds':
-      locationConditions += 'and location_code like $1'
-      values.push('wac')
-      break
-    case 'dvds':
-      locationConditions += `
-      and (location_code like $1 OR
-      location_code like $2)
-      `
-      values = ['wadvr', 'wadvd']
-      break
-    case 'audiobooks':
-      locationConditions += 'and location_code like $1'
-      values.push('wrb')
-      break
-    default:
-      locationConditions += 'and location_code like $1'
-      values.push('whi')
-      break
+  if (location === 'ebooks' || location === 'evideos') {
+    return []
   }
+
+  const genCondition = (location === 'gen') ? 'AND checkout_total>100' : ''
+
+  const options = {
+    gen: "'wgi'",
+    gov: "'wdn', 'wdu', 'wdd'",
+    juv: "'wje', 'wjf', 'wjb', 'wjd'",
+    new: "'whi'",
+    cds: "'wac'",
+    dvds: "'wadvr', 'wadvd'",
+    audiobooks: "'wrb'",
+    default: "'whi'"
+  }
+  let locationString = options[location]
+  if (!locationString) { locationString = options.default }
 
   const sql = `
     SELECT DISTINCT
@@ -222,37 +159,29 @@ function getPopularItems (sierra, location = 'gen') {
       location_code as location
     FROM sierra_view.bib_view
     LEFT JOIN sierra_view.bib_record_property
-      ON sierra_view.bib_view.id=sierra_view.bib_record_property.bib_record_id
+      ON sierra_view.bib_view.id = sierra_view.bib_record_property.bib_record_id
     LEFT JOIN sierra_view.bib_record_item_record_link
-      ON sierra_view.bib_view.id=sierra_view.bib_record_item_record_link.bib_record_id
+      ON sierra_view.bib_view.id = sierra_view.bib_record_item_record_link.bib_record_id
     LEFT JOIN sierra_view.item_view
-      ON sierra_view.bib_record_item_record_link.item_record_id=sierra_view.item_view.id
+      ON sierra_view.bib_record_item_record_link.item_record_id = sierra_view.item_view.id
     WHERE
-      bcode3 ='-'
-      ${locationConditions}
-      and item_status_code!='p'
-      and item_status_code!='$'
-      and item_status_code!='i'
-      and item_status_code!='u'
-      and item_status_code!='z'
-      and item_status_code!='d'
-      and item_status_code!='m'
-      and item_status_code!='v'
-      and item_status_code!='r'
-      and icode2='-'
+      bcode3 = '-'
+      AND location_code IN (${locationString})
+      AND item_status_code NOT IN ('p', '$', 'i', 'u', 'z', 'd', 'm', 'v', 'r')
+      AND icode2 = '-'
       ${genCondition}
-      and checkout_total > 10
+      AND checkout_total > 10
     ORDER BY checkout_total DESC
     LIMIT 36
   `
-  return sierra.query(sql, values)
+  return sierra.query(sql)
 }
 
 module.exports = {
   getPopularItems,
-  getNewlyAcquiredBooks,
-  getNewlyAcquiredVideos,
-  getNewlyAcquiredMusic,
+  getNewBooks,
+  getNewVideos,
+  getNewMusic,
   getISBN,
   getUPC,
   getAddInfo

@@ -12,7 +12,7 @@ router.get('/', async (req, res, next) => {
     popItems,
     locations,
     location
-  } = await controller.spaghetti(req, res, next)
+  } = await controller.doFrontPage(req, res, next)
 
   res.render('home', {
     title: 'Readbox',
@@ -24,7 +24,6 @@ router.get('/', async (req, res, next) => {
     location: location || 'new',
     showFindIt: (location !== 'ebooks' && location !== 'evideos'),
     noPop: (location === 'ebooks' || location === 'evideos')
-    // noNew: (location === 'audiobooks'),
   })
 })
 

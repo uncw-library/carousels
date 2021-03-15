@@ -1,9 +1,7 @@
-const pg = require('pg')
+const { Pool } = require('pg')
 
-/* create a connection pool to our Sierra database
- The .query method will connect and release connections to the pool
- so that we don't have to keep constant open connections */
-const client = new pg.Pool({
+// sierra db server does not accept ssl, for other db servers ssl: false will be different
+const pool = new Pool({
   user: process.env.SIERRA_USER,
   password: process.env.SIERRA_PASS,
   database: 'iii',
@@ -12,8 +10,14 @@ const client = new pg.Pool({
   ssl: {
     rejectUnauthorized: false
   },
-
-  max: 2,
+  max: 1,
+  idleTimeoutMillis: 30000,
+  connectionTimeoutMillis: 36000
 })
 
-module.exports = client
+module.exports = {
+  query: (text, params, next) => {
+    return pool.query(text, params, next)
+  }
+}
+

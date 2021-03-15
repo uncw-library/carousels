@@ -1,24 +1,23 @@
 const R = require('ramda')
 const _ = require('lodash')
 
+const fs = require('fs')
+
 const queries = require('./queries')
-const sierraPool = require('./sierra')
+const sierra = require('./sierra')
 
 const ITEMS_PER_SLIDE = 5
 
 async function spaghetti (req, res, next) {
-    // create a client for our connection pool
-    const sierraClient = await sierraPool.connect()
-
     const location = req.query.location || 'gen'
 
     // let's get our new books
     // note that we will need to chunk the array for the purposes of the carousel
-    const newBooksBib = R.path(['rows'], await queries.getNewlyAcquiredBooks(sierraClient, location))
+    const newBooksBib = R.path(['rows'], await queries.getNewlyAcquiredBooks(sierra, location))
     const newBooks = (newBooksBib) ? _.chunk(await Promise.all(newBooksBib.map(async (item) => {
-      let isbn = R.path(['rows', 0, 'field_content'], await queries.getISBN(sierraClient, item.record_num))
-      let UPC = R.path(['rows', 0, 'field_content'], await queries.getUPC(sierraClient, item.record_num))
-      const addInfo = R.path(['rows'], await queries.getAddInfo(sierraClient, item.record_num))
+      let isbn = R.path(['rows', 0, 'field_content'], await queries.getISBN(sierra, item.record_num))
+      let UPC = R.path(['rows', 0, 'field_content'], await queries.getUPC(sierra, item.record_num))
+      const addInfo = R.path(['rows'], await queries.getAddInfo(sierra, item.record_num))
       isbn = (isbn && location !== 'gov') ? isbn.match(/([0-9]+[X]?)/gi)[0] : ''
       UPC = (UPC && location !== 'gov') ? UPC.match(/([0-9]+)/gi)[0] : ''
 
@@ -46,11 +45,11 @@ async function spaghetti (req, res, next) {
 
     // let's get our new videos
     // note that we will need to chunk the array for the purposes of the carousel
-    const newVideosBib = R.path(['rows'], await queries.getNewlyAcquiredVideos(sierraClient, location))
+    const newVideosBib = R.path(['rows'], await queries.getNewlyAcquiredVideos(sierra, location))
     const newVideos = (newVideosBib) ? _.chunk(await Promise.all(newVideosBib.map(async (item) => {
-      let isbn = R.path(['rows', 0, 'field_content'], await queries.getISBN(sierraClient, item.record_num))
-      let UPC = R.path(['rows', 0, 'field_content'], await queries.getUPC(sierraClient, item.record_num))
-      const addInfo = R.path(['rows'], await queries.getAddInfo(sierraClient, item.record_num))
+      let isbn = R.path(['rows', 0, 'field_content'], await queries.getISBN(sierra, item.record_num))
+      let UPC = R.path(['rows', 0, 'field_content'], await queries.getUPC(sierra, item.record_num))
+      const addInfo = R.path(['rows'], await queries.getAddInfo(sierra, item.record_num))
       isbn = (isbn && location !== 'gov') ? isbn.match(/([0-9]+[X]?)/gi)[0] : ''
       UPC = (UPC && location !== 'gov') ? UPC.match(/([0-9]+)/gi)[0] : ''
 
@@ -80,11 +79,11 @@ async function spaghetti (req, res, next) {
 
     // let's get our new music
     // note that we will need to chunk the array for the purposes of the carousel
-    const newMusicBib = R.path(['rows'], await queries.getNewlyAcquiredMusic(sierraClient, location))
+    const newMusicBib = R.path(['rows'], await queries.getNewlyAcquiredMusic(sierra, location))
     const newMusic = (newMusicBib) ? _.chunk(await Promise.all(newMusicBib.map(async (item) => {
-      let isbn = R.path(['rows', 0, 'field_content'], await queries.getISBN(sierraClient, item.record_num))
-      let UPC = R.path(['rows', 0, 'field_content'], await queries.getUPC(sierraClient, item.record_num))
-      const addInfo = R.path(['rows'], await queries.getAddInfo(sierraClient, item.record_num))
+      let isbn = R.path(['rows', 0, 'field_content'], await queries.getISBN(sierra, item.record_num))
+      let UPC = R.path(['rows', 0, 'field_content'], await queries.getUPC(sierra, item.record_num))
+      const addInfo = R.path(['rows'], await queries.getAddInfo(sierra, item.record_num))
       isbn = (isbn && location !== 'gov') ? isbn.match(/([0-9]+[X]?)/gi)[0] : ''
       UPC = (UPC && location !== 'gov') ? UPC.match(/([0-9]+)/gi)[0] : ''
 
@@ -112,11 +111,11 @@ async function spaghetti (req, res, next) {
 
 
     // let's get our popular items
-    const popItemsBib = R.path(['rows'], await queries.getPopularItems(sierraClient, location))
+    const popItemsBib = R.path(['rows'], await queries.getPopularItems(sierra, location))
     const popItems = (popItemsBib) ? _.chunk(await Promise.all(popItemsBib.map(async (item) => {
-      let isbn = R.path(['rows', 0, 'field_content'], await queries.getISBN(sierraClient, item.record_num))
-      let UPC = R.path(['rows', 0, 'field_content'], await queries.getUPC(sierraClient, item.record_num))
-      const addInfo = R.path(['rows'], await queries.getAddInfo(sierraClient, item.record_num))
+      let isbn = R.path(['rows', 0, 'field_content'], await queries.getISBN(sierra, item.record_num))
+      let UPC = R.path(['rows', 0, 'field_content'], await queries.getUPC(sierra, item.record_num))
+      const addInfo = R.path(['rows'], await queries.getAddInfo(sierra, item.record_num))
       isbn = (isbn && location !== 'gov') ? isbn.match(/([0-9]+[X]?)/gi)[0] : ''
       UPC = (UPC && location !== 'gov') ? UPC.match(/([0-9]+)/gi)[0] : ''
 
@@ -154,8 +153,52 @@ async function spaghetti (req, res, next) {
       { name: 'Audiobooks', value: 'audiobooks' }
     ]
 
-    // release our clients to the pool
-    sierraClient.release()
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    // const newBooksText = JSON.stringify(newBooks)
+    // fs.writeFile('app/testOutput/newBooksOutput.json', newBooksText, 'utf8', function (err) {
+    //   if (err) return console.log(err)
+    // })
+    // const newVideosText = JSON.stringify(newVideos)
+    // fs.writeFile('app/testOutput/newVideosOutput.json', newVideosText, 'utf8', function (err) {
+    //   if (err) return console.log(err)
+    // })
+    // const newMusicText = JSON.stringify(newMusic)
+    // fs.writeFile('app/testOutput/newMusicOutput.json', newMusicText, 'utf8', function (err) {
+    //   if (err) return console.log(err)
+    // })
+    // const popItemsText = JSON.stringify(popItems)
+    // fs.writeFile('app/testOutput/popItemsOutput.json', popItemsText, 'utf8', function (err) {
+    //   if (err) return console.log(err)
+    // })
+    // const locationsText = JSON.stringify(locations)
+    // fs.writeFile('app/testOutput/locationsOutput.json', locationsText, 'utf8', function (err) {
+    //   if (err) return console.log(err)
+    // })
+    // const locationText = JSON.stringify(location)
+    // fs.writeFile('app/testOutput/locationOutput.json', locationText, 'utf8', function (err) {
+    //   if (err) return console.log(err)
+    // })
+
+    oldNew = {
+      'newBooksOutput.json': newBooks,
+      'newVideosOutput.json': newVideos,
+      'newMusicOutput.json': newMusic,
+      'popItemsOutput.json': popItems,
+      'locationsOutput.json': locations,
+      'locationOutput.json': location
+    }
+    for (const key in oldNew) {
+      const value = oldNew[key]
+      console.log(`${key} is being compared`)
+      if (compareOldNew(key, value) === true) {
+        console.log(`${key} matches`)
+      } else {
+        console.log(`${key} doesn't match!!!!!!`)
+      }
+    }
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     return {
       newBooks,
@@ -166,6 +209,21 @@ async function spaghetti (req, res, next) {
       location
   }
 }
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+function compareOldNew (oldOutputFile, newJson) {
+  const fullpath = `app/testOutput/${oldOutputFile}`
+  const fileText = fs.readFileSync(fullpath, 'utf8')
+  const reorderedFiletext = JSON.stringify(JSON.parse(fileText))
+  const reorderedQueryResponse = JSON.stringify(newJson)
+  if (reorderedFiletext == reorderedQueryResponse) {
+    return true
+  } else {
+    return false
+  }
+}
+
 
 module.exports = {
   spaghetti

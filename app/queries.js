@@ -1,4 +1,4 @@
-function getISBN (client, bib) {
+function getISBN (sierra, bib) {
   const values = [bib]
   const sql = `
     SELECT DISTINCT varfield_view.field_content
@@ -10,10 +10,10 @@ function getISBN (client, bib) {
       AND sierra_view.bib_view.record_num=$1
     LIMIT 1
   `
-  return client.query(sql, values)
+  return sierra.query(sql, values)
 }
 
-function getUPC (client, bib) {
+function getUPC (sierra, bib) {
   const values = [bib]
   const sql = `
     SELECT DISTINCT field_content
@@ -25,10 +25,10 @@ function getUPC (client, bib) {
       AND sierra_view.bib_view.record_num=$1
     limit 1
   `
-  return client.query(sql, values)
+  return sierra.query(sql, values)
 }
 
-function getAddInfo (client, bib) {
+function getAddInfo (sierra, bib) {
   const values = [bib]
   const sql = `
     SELECT is_available_at_library,call_number_norm as call_number,location_code, location_name.name as location
@@ -45,10 +45,10 @@ function getAddInfo (client, bib) {
       ON sierra_view.location_name.location_id=location.id
     WHERE bib_view.record_num=$1
   `
-  return client.query(sql, values)
+  return sierra.query(sql, values)
 }
 
-function getNewlyAcquiredBooks (client, location = 'gen') {
+function getNewlyAcquiredBooks (sierra, location = 'gen') {
   const values = []
   const sql = `
     SELECT DISTINCT
@@ -83,10 +83,10 @@ function getNewlyAcquiredBooks (client, location = 'gen') {
       and copy_num='1'
     LIMIT 100
   `
-  return client.query(sql, values)
+  return sierra.query(sql, values)
 }
 
-function getNewlyAcquiredVideos (client, location = 'dvds') {
+function getNewlyAcquiredVideos (sierra, location = 'dvds') {
   const values = []
   const sql = `
     SELECT DISTINCT
@@ -120,10 +120,10 @@ function getNewlyAcquiredVideos (client, location = 'dvds') {
       and item_view.record_creation_date_gmt >= (current_date-90)
       and copy_num='1'
   `
-  return client.query(sql, values)
+  return sierra.query(sql, values)
 }
 
-function getNewlyAcquiredMusic (client, location = 'dvds') {
+function getNewlyAcquiredMusic (sierra, location = 'dvds') {
   const values = []
   const sql = `
     SELECT DISTINCT
@@ -158,10 +158,10 @@ function getNewlyAcquiredMusic (client, location = 'dvds') {
       and copy_num='1'
     LIMIT 100
   `
-  return client.query(sql, values)
+  return sierra.query(sql, values)
 }
 
-function getPopularItems (client, location = 'gen') {
+function getPopularItems (sierra, location = 'gen') {
   let values = []
   let locationConditions = ''
   const genCondition = (location === 'gen') ? 'and checkout_total>100' : ''
@@ -245,7 +245,7 @@ function getPopularItems (client, location = 'gen') {
     ORDER BY checkout_total DESC
     LIMIT 36
   `
-  return client.query(sql, values)
+  return sierra.query(sql, values)
 }
 
 module.exports = {

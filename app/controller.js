@@ -195,7 +195,8 @@ function findBestItem (item, addInfoResponse) {
 }
 
 async function doFrontPage (req, res, next) {
-  if (CACHE && CACHE_TIME && (Date.now() - CACHE_TIME < 30000)) {
+  // if there's a cache and it's less than a day old.
+  if (CACHE && CACHE_TIME && (Date.now() - CACHE_TIME < 86400000)) {
     return CACHE
   }
   const location = req.query.location || 'gen'

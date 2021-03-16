@@ -131,54 +131,7 @@ function getNewMusic (sierra, location = 'dvds') {
   return sierra.query(sql)
 }
 
-function getPopularItems (sierra, location = 'gen') {
-  if (location === 'ebooks' || location === 'evideos') {
-    return []
-  }
-
-  const genCondition = (location === 'gen') ? 'AND checkout_total>100' : ''
-
-  const options = {
-    gen: "'wgi'",
-    gov: "'wdn', 'wdu', 'wdd'",
-    juv: "'wje', 'wjf', 'wjb', 'wjd'",
-    new: "'whi'",
-    cds: "'wac'",
-    dvds: "'wadvr', 'wadvd'",
-    audiobooks: "'wrb'",
-    default: "'whi'"
-  }
-  let locationString = options[location]
-  if (!locationString) { locationString = options.default }
-
-  const sql = `
-    SELECT DISTINCT
-      bib_view.record_num,checkout_total,
-      best_title as title,
-      best_author as author,
-      location_code as location
-    FROM sierra_view.bib_view
-    LEFT JOIN sierra_view.bib_record_property
-      ON sierra_view.bib_view.id = sierra_view.bib_record_property.bib_record_id
-    LEFT JOIN sierra_view.bib_record_item_record_link
-      ON sierra_view.bib_view.id = sierra_view.bib_record_item_record_link.bib_record_id
-    LEFT JOIN sierra_view.item_view
-      ON sierra_view.bib_record_item_record_link.item_record_id = sierra_view.item_view.id
-    WHERE
-      bcode3 = '-'
-      AND location_code IN (${locationString})
-      AND item_status_code NOT IN ('p', '$', 'i', 'u', 'z', 'd', 'm', 'v', 'r')
-      AND icode2 = '-'
-      ${genCondition}
-      AND checkout_total > 10
-    ORDER BY checkout_total DESC
-    LIMIT 36
-  `
-  return sierra.query(sql)
-}
-
 module.exports = {
-  getPopularItems,
   getNewBooks,
   getNewVideos,
   getNewMusic,

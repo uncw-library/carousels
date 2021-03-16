@@ -1,60 +1,23 @@
-<!--<div class="location-filter">
-    <div class="input-group input-group-lg">
-    <div class="input-group-prepend">
-        <label class="input-group-text" for="">Location</label>
-    </div>
-    <select class="custom-select" id="location-select">
-        <option selected>Choose...</option>
-        {{#each locations}}
-            <option {{isSelected this.value ../location}} value="{{this.value}}">{{this.name}}</option>
-        {{/each}}
-    </select>
-    <script>
-        $(function(){
-            // bind change event to select
-            $('#location-select').on('change', function () {
-                var location = $(this).val(); // get selected value
-                if (location) { // require a URL
-                    window.location = '/?location=' + location; // redirect
-                }
-                return false;
-            });
-        });
-    </script>
-    </div>
-</div>-->
-
-
-    <div class="row mb-5 book-row">
-        <div class="card book-card">
+<div class="row mb-5 book-row">
+    <div class="card book-card">
         <div class="card-body">
-            <h5 class="card-title">Newly Acquired Books <a href="https://library.uncw.edu/web/collections/new/books/feeds/NewTitles.xml" title="Subscribe to Library New Book Titles Feed">
-	  <img src="https://library.uncw.edu/misc/feed.png" width="16" height="16" alt="Subscribe to Library New book Titles Feed" /></a><!-- RSS feed --></h5>
+            <h5 class="card-title">Newly Acquired Books <a href="https://library.uncw.edu/web/collections/new/books/feeds/NewTitles.xml" title="Subscribe to Library New Book Titles Feed"><img src="https://library.uncw.edu/misc/feed.png" width="16" height="16" alt="Subscribe to Library New book Titles Feed" /></a><!-- RSS feed --></h5>
             <div id="carousel-slide-1" class="carousel slide" data-ride="carousel">
                 <div class="carousel-inner">
                     {{#each newBooks}}
                     <div class="carousel-item {{#unless @index}}active{{/unless}}">
                         <div class="row justify-content-center">
                             {{#each this}}
-                                <div class="syn_skipthis col-auto book-div">
-                                    <img class="img img-thumbnail" onerror="this.src='/images/book{{onetwothree @index}}.jpg';"
-                                    src="http://www.syndetics.com/index.php?isbn={{this.isbn}}&upc={{this.UPC}}/lc.gif&client=uncwh">
-                                    <a href="#" data-toggle="modal" data-target="#itemInfoModal" onclick="updateModal('{{safeStr this.isbn}}', '{{safeStr this.UPC}}',  '{{safeStr this.title}}', '{{safeStr this.titleFixed}}', '{{safeStr this.authorFixed}}', '{{safeStr this.callNumber}}', '{{safeStr this.location}}', '/images/book{{onetwothree @index}}.jpg', '{{changeStr this.available}}', '{{this.recordnum}}')">
-                                        <div class="overlay">
-                                            <div class="text">
-                                                {{this.titleFixed}} - {{this.authorFixed}}
-                                            </div>
+                            <div class="syn_skipthis col-auto book-div">
+                                <img class="img img-thumbnail" onerror="this.src='/images/book{{onetwothree @index}}.jpg';" src="http://www.syndetics.com/index.php?isbn={{this.isbn}}&upc={{this.UPC}}/lc.gif&client=uncwh">
+                                <a href="#" data-toggle="modal" data-target="#itemInfoModal" onclick="updateModal('{{safeStr this.isbn}}', '{{safeStr this.UPC}}',  '{{safeStr this.title}}', '{{safeStr this.titleFixed}}', '{{safeStr this.authorFixed}}', '{{safeStr this.callNumber}}', '{{safeStr this.location}}', '/images/book{{onetwothree @index}}.jpg', '{{changeStr this.available}}', '{{this.recordnum}}')">
+                                    <div class="overlay">
+                                        <div class="text">
+                                            {{this.titleFixed}} - {{this.authorFixed}}
                                         </div>
-                                    </a>
-                                    
-                                   <!-- <div class="availability">
-                                        {{#if this.available}}
-                                            <span class="green"><i class="fas fa-check-circle"></i> Not Checked Out</span>
-                                        {{else}}
-                                            <span class="red"><i class="fas fa-times-circle"></i> Checked Out</span>
-                                        {{/if}}
-                                    </div> -->
                                     </div>
+                                </a>
+                            </div>
                             {{/each}}
                         </div>
                     </div>
@@ -74,39 +37,30 @@
                 </a>
             </div>
         </div>
-        </div>
     </div>
+</div>
 
 
  <div class="row mb-5 mt-3 book-row">
-        <div class="card book-card">
+    <div class="card book-card">
         <div class="card-body">
-            <h5 class="card-title">Newly Acquired Videos <a href="https://library.uncw.edu/web/collections/new/videos/feeds/NewVideos.xml" 
-	  title="Subscribe to Library New Videos Feed"> <img src="https://library.uncw.edu/misc/feed.png" width="16" height="16" alt="Subscribe to Library New Videos Feed" /></a></h5>
+            <h5 class="card-title">Newly Acquired Videos <a href="https://library.uncw.edu/web/collections/new/videos/feeds/NewVideos.xml" title="Subscribe to Library New Videos Feed"> <img src="https://library.uncw.edu/misc/feed.png" width="16" height="16" alt="Subscribe to Library New Videos Feed" /></a></h5>
             <div id="carousel-slide-2" class="carousel slide" data-ride="carousel">
                 <div class="carousel-inner">
                     {{#each newVideos}}
                     <div class="carousel-item {{#unless @index}}active{{/unless}}">
                         <div class="row justify-content-center">
                             {{#each this}}
-                                <div class="syn_skipthis col-auto book-div">
-                                    <img class="img img-thumbnail" onerror="this.src='/images/book{{onetwothree @index}}.jpg';"
-                                    src="http://www.syndetics.com/index.php?isbn={{this.isbn}}&upc={{this.UPC}}/lc.gif&client=uncwh">
-                                    <a href="#" data-toggle="modal" data-target="#itemInfoModal" onclick="updateModal('{{safeStr this.isbn}}', '{{safeStr this.UPC}}', '{{safeStr this.title}}', '{{safeStr this.titleFixed}}', '{{safeStr this.authorFixed}}', '{{safeStr this.callNumber}}', '{{safeStr this.location}}', '/images/book{{onetwothree @index}}.jpg', '{{changeStr this.available}}', '{{this.recordnum}}')">
-                                        <div class="overlay">
-                                            <div class="text">
-                                                {{this.titleFixed}} - {{this.authorFixed}}
-                                            </div>
+                            <div class="syn_skipthis col-auto book-div">
+                                <img class="img img-thumbnail" onerror="this.src='/images/book{{onetwothree @index}}.jpg';" src="http://www.syndetics.com/index.php?isbn={{this.isbn}}&upc={{this.UPC}}/lc.gif&client=uncwh">
+                                <a href="#" data-toggle="modal" data-target="#itemInfoModal" onclick="updateModal('{{safeStr this.isbn}}', '{{safeStr this.UPC}}', '{{safeStr this.title}}', '{{safeStr this.titleFixed}}', '{{safeStr this.authorFixed}}', '{{safeStr this.callNumber}}', '{{safeStr this.location}}', '/images/book{{onetwothree @index}}.jpg', '{{changeStr this.available}}', '{{this.recordnum}}')">
+                                    <div class="overlay">
+                                        <div class="text">
+                                            {{this.titleFixed}} - {{this.authorFixed}}
                                         </div>
-                                    </a>
-                                   <!-- <div class="availability">
-                                        {{#if this.available}}
-                                            <span class="green"><i class="fas fa-check-circle"></i> Not Checked Out</span>
-                                        {{else}}
-                                            <span class="red"><i class="fas fa-times-circle"></i> Checked Out</span>
-                                        {{/if}}
-                                    </div> -->
-                                </div>
+                                    </div>
+                                </a>
+                            </div>
                             {{/each}}
                         </div>
                     </div>
@@ -126,39 +80,30 @@
                 </a>
             </div>
         </div>
-        </div>
     </div>
+</div>
 
 
 <div class="row mb-5 mt-3 book-row">
-        <div class="card book-card">
+    <div class="card book-card">
         <div class="card-body">
-            <h5 class="card-title">Newly Acquired Music <a href="https://library.uncw.edu/web/collections/new/cds/feeds/NewMusic.xml" 
-	   title="Subscribe to Library New Music Feed"><img src="https://library.uncw.edu/misc/feed.png" width="16" height="16" alt="Subscribe to Library Music Feed" /></a></h5>
+            <h5 class="card-title">Newly Acquired Music <a href="https://library.uncw.edu/web/collections/new/cds/feeds/NewMusic.xml" title="Subscribe to Library New Music Feed"><img src="https://library.uncw.edu/misc/feed.png" width="16" height="16" alt="Subscribe to Library Music Feed" /></a></h5>
             <div id="carousel-slide-3" class="carousel slide" data-ride="carousel">
                 <div class="carousel-inner">
                     {{#each newMusic}}
                     <div class="carousel-item {{#unless @index}}active{{/unless}}">
                         <div class="row justify-content-center">
                             {{#each this}}
-                                <div class="syn_skipthis col-auto book-div">
-                                    <img class="img img-thumbnail" onerror="this.src='/images/book{{onetwothree @index}}.jpg';"
-                                    src="http://www.syndetics.com/index.php?isbn={{this.isbn}}&upc={{this.UPC}}/lc.gif&client=uncwh">
-                                    <a href="#" data-toggle="modal" data-target="#itemInfoModal" onclick="updateModal('{{safeStr this.isbn}}', '{{safeStr this.UPC}}', '{{safeStr this.title}}', '{{safeStr this.titleFixed}}', '{{safeStr this.authorFixed}}', '{{safeStr this.callNumber}}', '{{safeStr this.location}}', '/images/book{{onetwothree @index}}.jpg', '{{changeStr this.available}}', '{{this.recordnum}}')">
-                                        <div class="overlay">
-                                            <div class="text">
-                                                {{this.titleFixed}} - {{this.authorFixed}}
-                                            </div>
+                            <div class="syn_skipthis col-auto book-div">
+                                <img class="img img-thumbnail" onerror="this.src='/images/book{{onetwothree @index}}.jpg';" src="http://www.syndetics.com/index.php?isbn={{this.isbn}}&upc={{this.UPC}}/lc.gif&client=uncwh">
+                                <a href="#" data-toggle="modal" data-target="#itemInfoModal" onclick="updateModal('{{safeStr this.isbn}}', '{{safeStr this.UPC}}', '{{safeStr this.title}}', '{{safeStr this.titleFixed}}', '{{safeStr this.authorFixed}}', '{{safeStr this.callNumber}}', '{{safeStr this.location}}', '/images/book{{onetwothree @index}}.jpg', '{{changeStr this.available}}', '{{this.recordnum}}')">
+                                    <div class="overlay">
+                                        <div class="text">
+                                            {{this.titleFixed}} - {{this.authorFixed}}
                                         </div>
-                                    </a>
-                                     <!-- <div class="availability">
-                                        {{#if this.available}}
-                                            <span class="green"><i class="fas fa-check-circle"></i> Not Checked Out</span>
-                                        {{else}}
-                                            <span class="red"><i class="fas fa-times-circle"></i> Checked Out</span>
-                                        {{/if}}
-                                    </div> -->
-                                </div>
+                                    </div>
+                                </a>
+                            </div>
                             {{/each}}
                         </div>
                     </div>
@@ -178,58 +123,40 @@
                 </a>
             </div>
         </div>
-        </div>
     </div>
+</div>
 
 
 
 <div style="text-align:center;">
     <div class="col-auto">
-      <!--  <iframe width="600" height="800" frameborder="0" src="https://randall-rotations.libapps-staff.uncw.edu/GovDocs/rotation"></iframe>
-            <iframe width="1600" height="800" frameborder="1" src="https://popular-books.libapps.uncw.edu/"></iframe>-->
-
     </div>
 </div>
 
 <!-- Modal -->
 <div class="modal fade" id="itemInfoModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-  <div class="modal-dialog" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="modalTitle">Title</h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      <div id="sendAsTextIframe">
-
-      </div>
-      {{#if showFindIt}}
-        <div id="findItIframe">
-
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalTitle">Title</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div id="sendAsTextIframe"></div>
+            {{#if showFindIt}}
+            <div id="findItIframe"></div>
+            {{/if}}
+            <div id="modalBodyImage" class="modal-body"></div>
+            <div id="modalBodyInfo" class="modal-body" style="padding:.3rem;"></div>
+            <div id="modalBodyDescription" class="modal-body"></div>
+            <div id="sendAsText" class="modal-body"></div>
+            <div id="openCatalog" class="modal-body"></div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
         </div>
-      {{/if}}
-      <div id="modalBodyImage" class="modal-body">
-
-      </div>
-      <div id="modalBodyInfo" class="modal-body" style="padding:.3rem;">
-
-      </div>
-      <div id="modalBodyDescription" class="modal-body">
-
-      </div>
-      <div id="sendAsText" class="modal-body">
-
-      </div>
-        <div id="openCatalog" class="modal-body">
-
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-
-      </div>
     </div>
-  </div>
 </div>
 
 <script>
@@ -257,18 +184,6 @@
         $('#modalBodyDescription').html('');
         $('#sendAsText').html('');
     }
-
-//potential add on need to find bib
-   // function openCatalog(url) {
-     //   $('#sendAsTextIframe').html('' +
-       //     '<iframe src=\"'+url+'\" width="100%" height="550" style="margin-bottom:-90px;" frameborder="0"/>'
-       // );
-       // $('#findItIframe').html('');
-       // $('#modalBodyImage').html('');
-       // $('#modalBodyInfo').html('');
-       // $('#modalBodyDescription').html('');
-       // $('#sendAsText').html('');
-    //}
 
     function findIt(url, callNumber) {
         $('#findItIframe').html('' +
@@ -299,32 +214,19 @@
             callNumber.toUpperCase() +
             '<br/><strong>Location</strong>: ' +
             location + ' <br/><strong>Availability</strong>: '
-            + available
-             + 
-       //   '<br />*'+recordnum+
-            
-       
-        
-    
-                                    
-
-            '</div>'
+            + available + '</div>'
             );
         } else {
                $('#modalBodyInfo').html('' +
             '<div class="col-auto" style="text-align:center;"><strong>Click on button "See Catalog Record" to access Electronic Resource</strong>: ' +
             callNumber.toUpperCase() +
-           
             '</div>'
             );
         }
-
-
         location = location.replace(/[']/gi, '\\\'').replace(/["]/gi, '\\"');
         title = title.replace(/[']/gi, '\\\'').replace(/["]/gi, '\\"');
         $('#sendAsText').html(''+ 
                                  '<img style="margin:10px;" onclick="sendAsText(\'https://twilio.libapps.uncw.edu/sendCallNumber?bookLocation='+location+'&bookCallNumber='+callNumber+'&bookTitle='+title+'\');" src="/images/sendAsTxt.gif"/>' +
-                                 //'<img style="margin:10px;" onclick="openCatalog(\'https://libcat.uncw.edu/record=b3386145'+'\');" src="/images/sendAsTxt.gif"/>' +
                               '<a target="blank" href="https://libcat.uncw.edu/record=b'+recordnum+'"><img src="/images/catalogRecord.gif"/><img ></a>'+
                                  {{#if showFindIt}}
                                     '<img style="margin:10px;" onclick="findIt(\'https://findit.libapps.uncw.edu/stacks?callNumber='+callNumber+'&collection='+location+'\', \''+callNumber.toUpperCase()+'\');" src="/images/FindIT2-Button.png"/>' +
@@ -333,7 +235,6 @@
         $('#modalBodyDescription').html('' +
         '<p><div id="syn_summary"></div></p>'
         )
-
         syn_get_plus();
     }
 </script>

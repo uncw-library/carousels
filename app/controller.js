@@ -73,8 +73,18 @@ function compareOldNew (oldOutputFile, newJson) {
   }
 }
 
-async function findNewBooks (location) {
-  const newBooksBib = (await queries.getNewBooks(sierra, location)).rows
+async function main (segment, location) {
+  const queryMap = {
+    'newBooks': await queries.getNewBooks(sierra, location),
+    'newVideos': await queries.getNewVideos(sierra, location),
+    'newMusic': await queries.getNewMusic(sierra, location),
+    'popItems': await queries.getPopularItems(sierra, location)
+  }
+
+  const response = queryMap[segment]
+  const newBooksBib = response.rows
+
+
   if (!newBooksBib.length) {
     return [[]]
   }
@@ -100,109 +110,6 @@ async function findNewBooks (location) {
   // chunk the array for carousel display
   const newBooks = _.chunk(newBooksData, ITEMS_PER_SLIDE)
   return newBooks
-}
-
-async function findNewVideos (location) {
-  // let's get our new videos
-  // note that we will need to chunk the array for the purposes of the carousel
-  const newVideosBib = R.path(['rows'], await queries.getNewVideos(sierra, location))
-  const newVideos = (newVideosBib) ? _.chunk(await Promise.all(newVideosBib.map(async (item) => {
-    let isbn = R.path(['rows', 0, 'field_content'], await queries.getISBN(sierra, item.record_num))
-    let UPC = R.path(['rows', 0, 'field_content'], await queries.getUPC(sierra, item.record_num))
-    const addInfo = R.path(['rows'], await queries.getAddInfo(sierra, item.record_num))
-    isbn = (isbn && location !== 'gov') ? isbn.match(/([0-9]+[X]?)/gi)[0] : ''
-    UPC = (UPC && location !== 'gov') ? UPC.match(/([0-9]+)/gi)[0] : ''
-
-    // find the first item that matches the location and is available,
-    // or just find available item. If all else fails, grab the first item
-    let itemMatch = addInfo.filter(matchedItem => (matchedItem.location_code === item.location && matchedItem.is_available_at_library === true))
-    itemMatch = (itemMatch.length) ? itemMatch : addInfo.filter(matchedItem => (matchedItem.is_available_at_library === true))
-    itemMatch = (itemMatch.length) ? itemMatch[0] : R.path([0], addInfo)
-
-    return {
-      ...item,
-      isbn,
-      UPC,
-      callNumber: (!(location === 'ebooks' || location === 'evideos'))
-        ? R.path(['call_number'], itemMatch) : (item.url.replace(/[|].+/ig, '')),
-      available: ((R.path(['is_available_at_library'], itemMatch) === true) ||
-        location === 'ebooks' ||
-        location === 'evideos' ||
-        location === 'audiobooks'),
-      location: R.path(['location'], itemMatch),
-      titleFixed: (item.title.length >= 50) ? `${item.title.substring(0, 50)}...` : item.title,
-      authorFixed: (item.author.length >= 25) ? `${item.author.substring(0, 25)}...` : item.author
-    }
-  })), ITEMS_PER_SLIDE) : [[]]
-  return newVideos
-}
-
-async function findNewMusic (location) {
-  // let's get our new music
-  // note that we will need to chunk the array for the purposes of the carousel
-  const newMusicBib = R.path(['rows'], await queries.getNewMusic(sierra, location))
-  const newMusic = (newMusicBib) ? _.chunk(await Promise.all(newMusicBib.map(async (item) => {
-    let isbn = R.path(['rows', 0, 'field_content'], await queries.getISBN(sierra, item.record_num))
-    let UPC = R.path(['rows', 0, 'field_content'], await queries.getUPC(sierra, item.record_num))
-    const addInfo = R.path(['rows'], await queries.getAddInfo(sierra, item.record_num))
-    isbn = (isbn && location !== 'gov') ? isbn.match(/([0-9]+[X]?)/gi)[0] : ''
-    UPC = (UPC && location !== 'gov') ? UPC.match(/([0-9]+)/gi)[0] : ''
-
-    // find the first item that matches the location and is available,
-    // or just find available item. If all else fails, grab the first item
-    let itemMatch = addInfo.filter(matchedItem => (matchedItem.location_code === item.location && matchedItem.is_available_at_library === true))
-    itemMatch = (itemMatch.length) ? itemMatch : addInfo.filter(matchedItem => (matchedItem.is_available_at_library === true))
-    itemMatch = (itemMatch.length) ? itemMatch[0] : R.path([0], addInfo)
-
-    return {
-      ...item,
-      isbn,
-      UPC,
-      callNumber: (!(location === 'ebooks' || location === 'evideos'))
-        ? R.path(['call_number'], itemMatch) : (item.url.replace(/[|].+/ig, '')),
-      available: ((R.path(['is_available_at_library'], itemMatch) === true) ||
-        location === 'ebooks' ||
-        location === 'evideos' ||
-        location === 'audiobooks'),
-      location: R.path(['location'], itemMatch),
-      titleFixed: (item.title.length >= 50) ? `${item.title.substring(0, 50)}...` : item.title,
-      authorFixed: (item.author.length >= 25) ? `${item.author.substring(0, 25)}...` : item.author
-    }
-  })), ITEMS_PER_SLIDE) : [[]]
-  return newMusic
-}
-
-async function findPopItems (location) {
-  // let's get our popular items
-  const popItemsBib = R.path(['rows'], await queries.getPopularItems(sierra, location))
-  const popItems = (popItemsBib) ? _.chunk(await Promise.all(popItemsBib.map(async (item) => {
-    let isbn = R.path(['rows', 0, 'field_content'], await queries.getISBN(sierra, item.record_num))
-    let UPC = R.path(['rows', 0, 'field_content'], await queries.getUPC(sierra, item.record_num))
-    const addInfo = R.path(['rows'], await queries.getAddInfo(sierra, item.record_num))
-    isbn = (isbn && location !== 'gov') ? isbn.match(/([0-9]+[X]?)/gi)[0] : ''
-    UPC = (UPC && location !== 'gov') ? UPC.match(/([0-9]+)/gi)[0] : ''
-
-    // find the first item that matches the location and is available,
-    // or just find available item. If all else fails, grab the first item
-    let itemMatch = addInfo.filter(matchedItem => (matchedItem.location_code === item.location && matchedItem.is_available_at_library === true))
-    itemMatch = (itemMatch.length) ? itemMatch : addInfo.filter(matchedItem => (matchedItem.is_available_at_library === true))
-    itemMatch = (itemMatch.length) ? itemMatch[0] : R.path([0], addInfo)
-
-    return {
-      ...item,
-      isbn,
-      UPC,
-      callNumber: R.path(['call_number'], itemMatch),
-      available: ((R.path(['is_available_at_library'], itemMatch) === true) ||
-        location === 'ebooks' ||
-        location === 'evideos' ||
-        location === 'audiobooks'),
-      location: R.path(['location'], itemMatch),
-      titleFixed: (item.title.length >= 50) ? `${item.title.substring(0, 50)}...` : item.title,
-      authorFixed: (item.author.length >= 25) ? `${item.author.substring(0, 25)}...` : item.author
-    }
-  })), ITEMS_PER_SLIDE) : [[]]
-  return popItems
 }
 
 async function processNewBook (item, location) {
@@ -254,6 +161,7 @@ function isAvailable (location, itemMatch) {
   if (R.path(['is_available_at_library'], itemMatch) === true) {
     return true
   }
+  return false
 }
 
 function shortenTitle (item) {
@@ -291,10 +199,14 @@ function findBestItem (item, addInfoResponse) {
 async function doFrontPage (req, res, next) {
   const location = req.query.location || 'gen'
 
-  const newBooks = await findNewBooks(location)
-  const newVideos = await findNewVideos(location)
-  const newMusic = await findNewMusic(location)
-  const popItems = await findPopItems(location)
+  const newBooks = await main('newBooks', location)
+  const newVideos = await main('newVideos', location)
+  const newMusic = await main('newMusic', location)
+  const popItems = await main('popItems', location)
+  // const newBooks = await findNewBooks(location)
+  // const newVideos = await findNewVideos(location)
+  // const newMusic = await findNewMusic(location)
+  // const popItems = await findPopItems(location)
 
   const locations = [
     { name: 'General Collection', value: 'gen' },

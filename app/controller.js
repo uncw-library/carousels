@@ -12,17 +12,19 @@ async function doFrontPage (req, res, next) {
   if (CACHE && CACHE_TIME && (Date.now() - CACHE_TIME < 86400000)) {
     return CACHE
   }
-
   const location = req.query.location || 'gen'
   const newBooks = await main('newBooks', location)
   const newVideos = await main('newVideos', location)
   const newMusic = await main('newMusic', location)
-
+  const showFindIt = (location !== 'ebooks' && location !== 'evideos')
+  const noPop = (location === 'ebooks' || location === 'evideos')
   const bundle = {
     newBooks,
     newVideos,
     newMusic,
-    location
+    location,
+    showFindIt,
+    noPop
   }
   CACHE = bundle
   CACHE_TIME = Date.now()
@@ -42,14 +44,14 @@ async function main (segment, location) {
       response = await queries.getNewMusic(sierra, location)
       break
     default:
-      response = {rows: []}
+      response = { rows: [] }
       break
   }
   const bulkData = response.rows
   if (!bulkData.length) {
     return [[]]
   }
-  // doing the subqueries in parallel async
+  // using parallel async for the subqueries
   const slimData = await Promise.all(
     bulkData.map(async (item) => {
       const isbnResponse = await queries.getISBN(sierra, item.record_num)

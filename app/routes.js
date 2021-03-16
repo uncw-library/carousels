@@ -9,21 +9,18 @@ router.get('/', async (req, res, next) => {
     newBooks,
     newVideos,
     newMusic,
-    popItems,
-    locations,
-    location
+    location,
+    showFindIt,
+    noPop
   } = await controller.doFrontPage(req, res, next)
 
   res.render('home', {
-    title: 'Readbox',
     newBooks,
     newVideos,
     newMusic,
-    popItems,
-    locations,
-    location: location || 'new',
-    showFindIt: (location !== 'ebooks' && location !== 'evideos'),
-    noPop: (location === 'ebooks' || location === 'evideos')
+    location,
+    showFindIt,
+    noPop
   })
 })
 

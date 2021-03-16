@@ -51,14 +51,13 @@ async function getAddInfo (sierra, bib) {
   return await sierra.query(sql, values)
 }
 
-async function getNewBooks (sierra, location = 'gen') {
+async function getNewBooks (sierra) {
   const sql = `
     SELECT DISTINCT
       bib_view.record_num,
       best_title as title,
       best_author as author,
-      location_code as location,
-      bib_view.record_num as recordnum
+      location_code as location
     FROM sierra_view.bib_view
     LEFT JOIN sierra_view.bib_record_property
       ON sierra_view.bib_view.id = sierra_view.bib_record_property.bib_record_id
@@ -78,14 +77,13 @@ async function getNewBooks (sierra, location = 'gen') {
   return await sierra.query(sql)
 }
 
-async function getNewVideos (sierra, location = 'dvds') {
+async function getNewVideos (sierra) {
   const sql = `
     SELECT DISTINCT
       bib_view.record_num,
       best_title as title,
       best_author as author,
-      location_code as location,
-      bib_view.record_num as recordnum
+      location_code as location
     FROM sierra_view.bib_view
     LEFT JOIN sierra_view.bib_record_property
       ON sierra_view.bib_view.id = sierra_view.bib_record_property.bib_record_id
@@ -104,14 +102,13 @@ async function getNewVideos (sierra, location = 'dvds') {
   return await sierra.query(sql)
 }
 
-function getNewMusic (sierra, location = 'dvds') {
+async function getNewMusic (sierra) {
   const sql = `
     SELECT DISTINCT
       bib_view.record_num,
       best_title as title,
       best_author as author,
-      location_code as location,
-      bib_view.record_num as recordnum
+      location_code as location
     FROM sierra_view.bib_view
     LEFT JOIN sierra_view.bib_record_property
       ON sierra_view.bib_view.id = sierra_view.bib_record_property.bib_record_id
@@ -128,13 +125,35 @@ function getNewMusic (sierra, location = 'dvds') {
       AND copy_num='1'
     LIMIT 100
   `
-  return sierra.query(sql)
+  return await sierra.query(sql)
 }
+
+async function getUNCWAuthors(sierra) {
+  const sql = `
+    SELECT bib_view.record_num,
+      best_title_norm as title,
+      best_author_norm as author
+    FROM sierra_view.bib_view
+    LEFT JOIN sierra_view.varfield_view
+      ON sierra_view.varfield_view.record_id = sierra_view.bib_view.id
+    LEFT JOIN sierra_view.bib_record_property
+      ON sierra_view.bib_record_property.bib_record_id = sierra_view.bib_view.id
+    WHERE 
+      bcode3 = '-'
+      AND marc_tag = '690'
+      AND lower(field_content) = '|auncw faculty authors'
+      AND varfield_view.record_type_code = 'b'
+    ORDER BY best_author_norm desc
+  `
+  return await sierra.query(sql)
+}
+
 
 module.exports = {
   getNewBooks,
   getNewVideos,
   getNewMusic,
+  getUNCWAuthors,
   getISBN,
   getUPC,
   getAddInfo

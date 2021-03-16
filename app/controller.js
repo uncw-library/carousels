@@ -5,12 +5,13 @@ const queries = require('./queries')
 const sierra = require('./sierra')
 
 const ITEMS_PER_SLIDE = 5
-let CACHE, CACHE_TIME
+let FRONTPAGE_CACHE, FRONTPAGE_CACHE_TIME
+let AUTHORS_CACHE, AUTHORS_CACHE_TIME
 
 async function doFrontPage (req, res, next) {
   // return early if there's a cache and it's less than a day old.
-  if (CACHE && CACHE_TIME && (Date.now() - CACHE_TIME < 86400000)) {
-    return CACHE
+  if (FRONTPAGE_CACHE && FRONTPAGE_CACHE_TIME && (Date.now() - FRONTPAGE_CACHE_TIME < 86400000)) {
+    return FRONTPAGE_CACHE
   }
   const location = req.query.location || 'gen'
   const newBooks = await main('newBooks', location)
@@ -26,22 +27,52 @@ async function doFrontPage (req, res, next) {
     showFindIt,
     noPop
   }
-  CACHE = bundle
-  CACHE_TIME = Date.now()
+  FRONTPAGE_CACHE = bundle
+  FRONTPAGE_CACHE_TIME = Date.now()
   return bundle
 }
+
+async function doUncwAuthorsPage (req, res, next) {
+  // return early if there's a cache and it's less than a day old.
+  if (AUTHORS_CACHE && AUTHORS_CACHE_TIME && (Date.now() - AUTHORS_CACHE_TIME < 86400000)) {
+    return AUTHORS_CACHE
+  }
+  const location = req.query.location || 'gen'
+  const newBooks = await main('uncwAuthors', location)
+  const newVideos = [[]]
+  const newMusic = [[]]
+  // const newVideos = await main('newVideos', location)
+  // const newMusic = await main('newMusic', location)
+  const showFindIt = (location !== 'ebooks' && location !== 'evideos')
+  const noPop = (location === 'ebooks' || location === 'evideos')
+  const bundle = {
+    newBooks,
+    newVideos,
+    newMusic,
+    location,
+    showFindIt,
+    noPop
+  }
+  AUTHORS_CACHE = bundle
+  AUTHORS_CACHE_TIME = Date.now()
+  return bundle
+}
+
 
 async function main (segment, location) {
   let response
   switch (segment) {
     case 'newBooks':
-      response = await queries.getNewBooks(sierra, location)
+      response = await queries.getNewBooks(sierra)
       break
     case 'newVideos':
-      response = await queries.getNewVideos(sierra, location)
+      response = await queries.getNewVideos(sierra)
       break
     case 'newMusic':
-      response = await queries.getNewMusic(sierra, location)
+      response = await queries.getNewMusic(sierra)
+      break
+    case 'uncwAuthors':
+      response = await queries.getUNCWAuthors(sierra)
       break
     default:
       response = { rows: [] }
@@ -118,6 +149,9 @@ function shortenTitle (item) {
 }
 
 function shortenAuthor (item) {
+  if (!item.author) {
+    return ''
+  }
   if (item.author.length >= 25) {
     return `${item.author.substring(0, 25)}...`
   }
@@ -143,5 +177,6 @@ function findBestItem (item, addInfoResponse) {
 }
 
 module.exports = {
-  doFrontPage
+  doFrontPage,
+  doUncwAuthorsPage
 }

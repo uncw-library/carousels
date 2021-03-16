@@ -24,4 +24,24 @@ router.get('/', async (req, res, next) => {
   })
 })
 
+router.get('/uncw-authors', async (req, res, next) => {
+  const {
+    newBooks,
+    newVideos,
+    newMusic,
+    location,
+    showFindIt,
+    noPop
+  } = await controller.doUncwAuthorsPage(req, res, next)
+
+  res.render('home', {
+    newBooks,
+    newVideos,
+    newMusic,
+    location,
+    showFindIt,
+    noPop    
+  })
+})
+
 module.exports = router

@@ -13,7 +13,7 @@ async function tempTestOutput (bundle) {
     newBooks,
     newVideos,
     newMusic,
-    popItems,
+    // popItems,
     locations,
     location
   } = bundle
@@ -47,7 +47,7 @@ async function tempTestOutput (bundle) {
     'newBooksOutput.json': newBooks,
     'newVideosOutput.json': newVideos,
     'newMusicOutput.json': newMusic,
-    'popItemsOutput.json': popItems,
+    // 'popItemsOutput.json': popItems,
     'locationsOutput.json': locations,
     'locationOutput.json': location
   }
@@ -80,16 +80,13 @@ async function main (segment, location) {
     'newMusic': await queries.getNewMusic(sierra, location),
     'popItems': await queries.getPopularItems(sierra, location)
   }
-
-  const response = queryMap[segment]
-  const newBooksBib = response.rows
-
-
-  if (!newBooksBib.length) {
+  const bulkData = queryMap[segment].rows
+  if (!bulkData.length) {
     return [[]]
   }
-  const newBooksData = await Promise.all(
-    newBooksBib.map(async (item) => {
+  // doing the subqueries in parallel async
+  const slimData = await Promise.all(
+    bulkData.map(async (item) => {
       const isbnResponse = await queries.getISBN(sierra, item.record_num)
       const upcResponse = await queries.getUPC(sierra, item.record_num)
       const addInfoResponse = await queries.getAddInfo(sierra, item.record_num)
@@ -107,9 +104,9 @@ async function main (segment, location) {
       }
     })
   )
-  // chunk the array for carousel display
-  const newBooks = _.chunk(newBooksData, ITEMS_PER_SLIDE)
-  return newBooks
+  // the carousel display needs a chunked array
+  const chunked = _.chunk(slimData, ITEMS_PER_SLIDE)
+  return chunked
 }
 
 async function processNewBook (item, location) {
@@ -198,16 +195,10 @@ function findBestItem (item, addInfoResponse) {
 
 async function doFrontPage (req, res, next) {
   const location = req.query.location || 'gen'
-
   const newBooks = await main('newBooks', location)
   const newVideos = await main('newVideos', location)
   const newMusic = await main('newMusic', location)
-  const popItems = await main('popItems', location)
-  // const newBooks = await findNewBooks(location)
-  // const newVideos = await findNewVideos(location)
-  // const newMusic = await findNewMusic(location)
-  // const popItems = await findPopItems(location)
-
+  // const popItems = await main('popItems', location)
   const locations = [
     { name: 'General Collection', value: 'gen' },
     { name: 'Government Resources', value: 'gov' },
@@ -219,17 +210,16 @@ async function doFrontPage (req, res, next) {
     { name: 'Streaming Videos', value: 'evideos' },
     { name: 'Audiobooks', value: 'audiobooks' }
   ]
-
   const bundle = {
     newBooks,
     newVideos,
     newMusic,
-    popItems,
+    // popItems,
     locations,
     location
   }
 
-  tempTestOutput(bundle)
+  // tempTestOutput(bundle)
 
   return bundle
 }

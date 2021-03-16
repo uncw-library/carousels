@@ -7,6 +7,7 @@ const queries = require('./queries')
 const sierra = require('./sierra')
 
 const ITEMS_PER_SLIDE = 5
+let CACHE, CACHE_TIME
 
 async function tempTestOutput (bundle) {
   const {
@@ -194,6 +195,9 @@ function findBestItem (item, addInfoResponse) {
 }
 
 async function doFrontPage (req, res, next) {
+  if (CACHE && CACHE_TIME && (Date.now() - CACHE_TIME < 30000)) {
+    return CACHE
+  }
   const location = req.query.location || 'gen'
   const newBooks = await main('newBooks', location)
   const newVideos = await main('newVideos', location)
@@ -218,10 +222,10 @@ async function doFrontPage (req, res, next) {
     locations,
     location
   }
-
-  // tempTestOutput(bundle)
-
+  CACHE = bundle
+  CACHE_TIME = Date.now()
   return bundle
+
 }
 
 module.exports = {

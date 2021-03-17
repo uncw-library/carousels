@@ -28,13 +28,13 @@ async function getUPC (sierra, bib) {
   return await sierra.query(sql, values)
 }
 
-async function getAddInfo (sierra, bib) {
+async function getExtras (sierra, bib) {
   const values = [bib]
   const sql = `
     SELECT is_available_at_library,
       call_number_norm as call_number,
       location_code,
-      location_name.name as location
+      location_name.name as location_name
     FROM sierra_view.bib_view
     LEFT JOIN sierra_view.bib_record_item_record_link
       ON sierra_view.bib_view.id = sierra_view.bib_record_item_record_link.bib_record_id
@@ -57,7 +57,7 @@ async function getNewBooks (sierra) {
       bib_view.record_num,
       best_title as title,
       best_author as author,
-      location_code as location
+      location_code
     FROM sierra_view.bib_view
     LEFT JOIN sierra_view.bib_record_property
       ON sierra_view.bib_view.id = sierra_view.bib_record_property.bib_record_id
@@ -83,7 +83,7 @@ async function getNewVideos (sierra) {
       bib_view.record_num,
       best_title as title,
       best_author as author,
-      location_code as location
+      location_code
     FROM sierra_view.bib_view
     LEFT JOIN sierra_view.bib_record_property
       ON sierra_view.bib_view.id = sierra_view.bib_record_property.bib_record_id
@@ -108,7 +108,8 @@ async function getNewMusic (sierra) {
       bib_view.record_num,
       best_title as title,
       best_author as author,
-      location_code as location
+      location_code,
+      item_view.record_creation_date_gmt as creation_date
     FROM sierra_view.bib_view
     LEFT JOIN sierra_view.bib_record_property
       ON sierra_view.bib_view.id = sierra_view.bib_record_property.bib_record_id
@@ -121,14 +122,14 @@ async function getNewMusic (sierra) {
       AND substr(location_code,1,2) NOT IN ('wd', 'td', 'wc')
       AND bcode2 = 'j'
       AND item_status_code NOT IN ('p', '$', 'i', 'u', 'z', 'd', 'm', 'v', 'r')
-      AND item_view.record_creation_date_gmt >= (current_date-90)
       AND copy_num='1'
-    LIMIT 100
+  ORDER BY creation_date DESC
+  LIMIT 50
   `
   return await sierra.query(sql)
 }
 
-async function getUNCWAuthors(sierra) {
+async function getUNCWAuthors (sierra) {
   const sql = `
     SELECT bib_view.record_num,
       best_title_norm as title,
@@ -148,7 +149,6 @@ async function getUNCWAuthors(sierra) {
   return await sierra.query(sql)
 }
 
-
 module.exports = {
   getNewBooks,
   getNewVideos,
@@ -156,5 +156,5 @@ module.exports = {
   getUNCWAuthors,
   getISBN,
   getUPC,
-  getAddInfo
+  getExtras
 }

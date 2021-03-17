@@ -1,131 +1,56 @@
-<div class="row mb-5 book-row">
-    <div class="card book-card">
-        <div class="card-body">
-            <h5 class="card-title">Newly Acquired Books <a href="https://library.uncw.edu/web/collections/new/books/feeds/NewTitles.xml" title="Subscribe to Library New Book Titles Feed"><img src="https://library.uncw.edu/misc/feed.png" width="16" height="16" alt="Subscribe to Library New book Titles Feed" /></a><!-- RSS feed --></h5>
-            <div id="carousel-slide-1" class="carousel slide" data-ride="carousel">
-                <div class="carousel-inner">
-                    {{#each newBooks}}
-                    <div class="carousel-item {{#unless @index}}active{{/unless}}">
-                        <div class="row justify-content-center">
-                            {{#each this}}
-                            <div class="syn_skipthis col-auto book-div">
-                                <img class="img img-thumbnail" onerror="this.src='/images/book{{onetwothree @index}}.jpg';" src="http://www.syndetics.com/index.php?isbn={{this.isbn}}&upc={{this.UPC}}/lc.gif&client=uncwh">
-                                <a href="#" data-toggle="modal" data-target="#itemInfoModal" onclick="updateModal('{{safeStr this.isbn}}', '{{safeStr this.UPC}}',  '{{safeStr this.title}}', '{{safeStr this.titleFixed}}', '{{safeStr this.authorFixed}}', '{{safeStr this.callNumber}}', '{{safeStr this.location}}', '/images/book{{onetwothree @index}}.jpg', '{{changeStr this.available}}', '{{this.recordnum}}')">
-                                    <div class="overlay">
-                                        <div class="text">
-                                            {{this.titleFixed}} - {{this.authorFixed}}
+{{#each rows}}
+    <!-- Each carousel row uses this same template -->
+    <div class="row mb-5 mt-3 book-row">
+        <div class="card book-card">
+            <div class="card-body">
+                <!-- row title elem -->
+                <h5 class="card-title">
+                    {{this.title}}
+                    <a href="{{this.rssFeed}}" title="Subscribe to Library {{this.title}} Feed">
+                        <img src="https://library.uncw.edu/misc/feed.png" width="16" height="16" alt="Subscribe to Library {{this.title}} Feed" />
+                    </a>
+                </h5>
+                <!-- carousel items -->
+                <div id="carousel-slide-{{increment @index}}" class="carousel slide" data-ride="carousel">
+                    <div class="carousel-inner">
+                        {{#each this.items}}
+                        <!-- each chunk of 5 items, i.e, 5 books, cds, etc -->
+                        <div class="carousel-item {{#unless @index}}active{{/unless}}">
+                            <div class="row justify-content-center">
+                                {{#each this}}
+                                <!-- each item in the chunk, i.e., a book, cd, etc -->
+                                <div class="syn_skipthis col-auto book-div">
+                                    <img class="img img-thumbnail" onerror="this.src='/images/book{{onetwothree @index}}.jpg';" src="http://www.syndetics.com/index.php?isbn={{this.isbn}}&upc={{this.UPC}}/lc.gif&client=uncwh">
+                                    <a href="#" data-toggle="modal" data-target="#itemInfoModal" onclick="updateModal('{{safeStr this.isbn}}', '{{safeStr this.UPC}}', '{{safeStr this.title}}', '{{safeStr this.titleFixed}}', '{{safeStr this.authorFixed}}', '{{safeStr this.callNumber}}', '{{safeStr this.resLocation}}', '/images/book{{onetwothree @index}}.jpg', '{{changeStr this.available}}', '{{this.recordnum}}')">
+                                        <div class="overlay">
+                                            <div class="text">
+                                                {{this.titleFixed}} - {{this.authorFixed}}
+                                            </div>
                                         </div>
-                                    </div>
-                                </a>
+                                    </a>
+                                </div>
+                                {{/each}}
                             </div>
-                            {{/each}}
                         </div>
+                        {{/each}}
                     </div>
-                    {{/each}}
+                    <a class="carousel-control-prev" href="#carousel-slide-{{increment @index}}" role="button" data-slide="prev">
+                        <span style="color:Black;">
+                            <i class="fas fa-arrow-circle-left fa-3x"></i>
+                        </span>
+                        <span class="sr-only">Previous</span>
+                    </a>
+                    <a class="carousel-control-next" href="#carousel-slide-{{increment @index}}" role="button" data-slide="next">
+                        <span style="color:Black;">
+                            <span class="fas fa-arrow-circle-right fa-3x"></span>
+                        </span>
+                        <span class="sr-only">Next</span>
+                    </a>
                 </div>
-                <a class="carousel-control-prev" href="#carousel-slide-1" role="button" data-slide="prev">
-                    <span style="color:Black;">
-                        <i class="fas fa-arrow-circle-left fa-3x"></i>
-                    </span>
-                    <span class="sr-only">Previous</span>
-                </a>
-                <a class="carousel-control-next" href="#carousel-slide-1" role="button" data-slide="next">
-                    <span style="color:Black;">
-                        <span class="fas fa-arrow-circle-right fa-3x"></span>
-                    </span>
-                    <span class="sr-only">Next</span>
-                </a>
             </div>
         </div>
     </div>
-</div>
-
-
- <div class="row mb-5 mt-3 book-row">
-    <div class="card book-card">
-        <div class="card-body">
-            <h5 class="card-title">Newly Acquired Videos <a href="https://library.uncw.edu/web/collections/new/videos/feeds/NewVideos.xml" title="Subscribe to Library New Videos Feed"> <img src="https://library.uncw.edu/misc/feed.png" width="16" height="16" alt="Subscribe to Library New Videos Feed" /></a></h5>
-            <div id="carousel-slide-2" class="carousel slide" data-ride="carousel">
-                <div class="carousel-inner">
-                    {{#each newVideos}}
-                    <div class="carousel-item {{#unless @index}}active{{/unless}}">
-                        <div class="row justify-content-center">
-                            {{#each this}}
-                            <div class="syn_skipthis col-auto book-div">
-                                <img class="img img-thumbnail" onerror="this.src='/images/book{{onetwothree @index}}.jpg';" src="http://www.syndetics.com/index.php?isbn={{this.isbn}}&upc={{this.UPC}}/lc.gif&client=uncwh">
-                                <a href="#" data-toggle="modal" data-target="#itemInfoModal" onclick="updateModal('{{safeStr this.isbn}}', '{{safeStr this.UPC}}', '{{safeStr this.title}}', '{{safeStr this.titleFixed}}', '{{safeStr this.authorFixed}}', '{{safeStr this.callNumber}}', '{{safeStr this.location}}', '/images/book{{onetwothree @index}}.jpg', '{{changeStr this.available}}', '{{this.recordnum}}')">
-                                    <div class="overlay">
-                                        <div class="text">
-                                            {{this.titleFixed}} - {{this.authorFixed}}
-                                        </div>
-                                    </div>
-                                </a>
-                            </div>
-                            {{/each}}
-                        </div>
-                    </div>
-                    {{/each}}
-                </div>
-                <a class="carousel-control-prev" href="#carousel-slide-2" role="button" data-slide="prev">
-                    <span style="color:Black;">
-                        <i class="fas fa-arrow-circle-left fa-3x"></i>
-                    </span>
-                    <span class="sr-only">Previous</span>
-                </a>
-                <a class="carousel-control-next" href="#carousel-slide-2" role="button" data-slide="next">
-                    <span style="color:Black;">
-                        <span class="fas fa-arrow-circle-right fa-3x"></span>
-                    </span>
-                    <span class="sr-only">Next</span>
-                </a>
-            </div>
-        </div>
-    </div>
-</div>
-
-
-<div class="row mb-5 mt-3 book-row">
-    <div class="card book-card">
-        <div class="card-body">
-            <h5 class="card-title">Newly Acquired Music <a href="https://library.uncw.edu/web/collections/new/cds/feeds/NewMusic.xml" title="Subscribe to Library New Music Feed"><img src="https://library.uncw.edu/misc/feed.png" width="16" height="16" alt="Subscribe to Library Music Feed" /></a></h5>
-            <div id="carousel-slide-3" class="carousel slide" data-ride="carousel">
-                <div class="carousel-inner">
-                    {{#each newMusic}}
-                    <div class="carousel-item {{#unless @index}}active{{/unless}}">
-                        <div class="row justify-content-center">
-                            {{#each this}}
-                            <div class="syn_skipthis col-auto book-div">
-                                <img class="img img-thumbnail" onerror="this.src='/images/book{{onetwothree @index}}.jpg';" src="http://www.syndetics.com/index.php?isbn={{this.isbn}}&upc={{this.UPC}}/lc.gif&client=uncwh">
-                                <a href="#" data-toggle="modal" data-target="#itemInfoModal" onclick="updateModal('{{safeStr this.isbn}}', '{{safeStr this.UPC}}', '{{safeStr this.title}}', '{{safeStr this.titleFixed}}', '{{safeStr this.authorFixed}}', '{{safeStr this.callNumber}}', '{{safeStr this.location}}', '/images/book{{onetwothree @index}}.jpg', '{{changeStr this.available}}', '{{this.recordnum}}')">
-                                    <div class="overlay">
-                                        <div class="text">
-                                            {{this.titleFixed}} - {{this.authorFixed}}
-                                        </div>
-                                    </div>
-                                </a>
-                            </div>
-                            {{/each}}
-                        </div>
-                    </div>
-                    {{/each}}
-                </div>
-                <a class="carousel-control-prev" href="#carousel-slide-3" role="button" data-slide="prev">
-                    <span style="color:Black;">
-                        <i class="fas fa-arrow-circle-left fa-3x"></i>
-                    </span>
-                    <span class="sr-only">Previous</span>
-                </a>
-                <a class="carousel-control-next" href="#carousel-slide-3" role="button" data-slide="next">
-                    <span style="color:Black;">
-                        <span class="fas fa-arrow-circle-right fa-3x"></span>
-                    </span>
-                    <span class="sr-only">Next</span>
-                </a>
-            </div>
-        </div>
-    </div>
-</div>
-
+{{/each}}
 
 
 <div style="text-align:center;">

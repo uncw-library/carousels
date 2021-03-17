@@ -52,6 +52,9 @@ app.use((err, req, res, next) => {
 // used to return a number for the blank book cover images
 Handlebars.registerHelper('onetwothree', index => (index % 3) + 1)
 
+// used to increment the zero-indexed items to 1,2,3,etc
+Handlebars.registerHelper('increment', value => value + 1)
+
 // used for setting the value of a select input
 Handlebars.registerHelper('isSelected', (value1, value2) => (value1 === value2 ? 'selected' : ''))
 

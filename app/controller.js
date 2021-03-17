@@ -107,9 +107,9 @@ async function cleanupItems (bulkData, reqLocation) {
   */
   const slimData = await Promise.all(
     bulkData.map(async (item) => {
-      const isbnResponse = await queries.getISBN(sierra, item.record_num)
-      const upcResponse = await queries.getUPC(sierra, item.record_num)
-      const extrasResponse = await queries.getExtras(sierra, item.record_num)
+      const isbnResponse = await queries.getISBN(sierra, item.recordnum)
+      const upcResponse = await queries.getUPC(sierra, item.recordnum)
+      const extrasResponse = await queries.getExtras(sierra, item.recordnum)
       const bestItem = findBestItem(item, extrasResponse)
 
       return {

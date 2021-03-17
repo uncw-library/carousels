@@ -54,7 +54,7 @@ async function getExtras (sierra, bib) {
 async function getNewBooks (sierra) {
   const sql = `
     SELECT DISTINCT
-      bib_view.record_num,
+      bib_view.record_num as recordnum,
       best_title as title,
       best_author as author,
       location_code
@@ -80,7 +80,7 @@ async function getNewBooks (sierra) {
 async function getNewVideos (sierra) {
   const sql = `
     SELECT DISTINCT
-      bib_view.record_num,
+      bib_view.record_num as recordnum,
       best_title as title,
       best_author as author,
       location_code
@@ -105,7 +105,7 @@ async function getNewVideos (sierra) {
 async function getNewMusic (sierra) {
   const sql = `
     SELECT DISTINCT
-      bib_view.record_num,
+      bib_view.record_num as recordnum,
       best_title as title,
       best_author as author,
       location_code,
@@ -131,7 +131,7 @@ async function getNewMusic (sierra) {
 
 async function getUNCWAuthors (sierra) {
   const sql = `
-    SELECT bib_view.record_num,
+    SELECT bib_view.record_num as recordnum,
       best_title_norm as title,
       best_author_norm as author
     FROM sierra_view.bib_view

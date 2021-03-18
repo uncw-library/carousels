@@ -83,7 +83,7 @@ a {
   background-color: rgba(0, 0, 0, 0.67);
 }
 
-[src="images/book1.jpg"] + a .overlay,[src="images/book2.jpg"] + a .overlay,[src="images/book3.jpg"] + a .overlay{
+[src="/images/book1.jpg"] + a .overlay,[src="/images/book2.jpg"] + a .overlay,[src="/images/book3.jpg"] + a .overlay{
   position: absolute;
   top: 0;
   bottom: 0;

@@ -5,8 +5,10 @@ const queries = require('./queries')
 const sierra = require('./sierra')
 
 const ITEMS_PER_SLIDE = 5
-let FRONTPAGE_CACHE, FRONTPAGE_CACHE_TIME
-let AUTHORS_CACHE, AUTHORS_CACHE_TIME
+// let FRONTPAGE_CACHE, FRONTPAGE_CACHE_TIME
+// let AUTHORS_CACHE, AUTHORS_CACHE_TIME
+// let READBOX_CACHE, READBOX_CACHE_TIME
+let CACHE = {}
 
 async function doFrontPage (req, res, next) {
   // return early if there's a cache and it's less than a day old.
@@ -57,36 +59,166 @@ async function doUncwAuthorsPage (req, res, next) {
   return bundle
 }
 
-async function prepareRow (segment, reqLocation) {
-  let response, title, rssFeed
-  // only the query within the switch case gets executed
-  switch (segment) {
-    case 'newBooks':
-      response = await queries.getNewBooks(sierra)
-      title = 'Newly Acquired Books'
-      rssFeed = 'https://library.uncw.edu/web/collections/new/books/feeds/NewTitles.xml'
-      break
-    case 'newVideos':
-      response = await queries.getNewVideos(sierra)
-      title = 'Newly Acquired Videos'
-      rssFeed = 'https://library.uncw.edu/web/collections/new/videos/feeds/NewVideos.xml'
-      break
-    case 'newMusic':
-      response = await queries.getNewMusic(sierra)
-      title = 'Newly Acquired Music'
-      rssFeed = 'https://library.uncw.edu/web/collections/new/cds/feeds/NewMusic.xml'
-      break
-    case 'uncwAuthors':
-      response = await queries.getUNCWAuthors(sierra)
-      title = 'UNCW Authors'
-      rssFeed = 'https://library.uncw.edu/web/collections/new/cds/feeds/UNCWAuthors.xml'
-      break
-    default:
-      response = { rows: [] }
-      title = 'Other Items'
-      rssFeed = ''
-      break
+async function doReadboxPage (req, res, next) {
+  // return early if there's a cache and it's less than a day old.
+  // CACHE has a key for each reqURL
+  const reqURL = req.url
+  if (CACHE[reqURL] && CACHE[reqURL]['time'] && (Date.now() - CACHE[reqURL]['time'] < 86400000)) {
+    return CACHE[reqURL]['bundle']
   }
+
+  const reqLocation = req.query.location || 'gen'
+  const showFindIt = (reqLocation !== 'ebooks' && reqLocation !== 'evideos')
+  const noPop = (reqLocation === 'ebooks' || reqLocation === 'evideos')
+
+  const locationsRows = {
+    'gen': ['newGeneral', 'popGeneral'],
+    'gov': ['newGov', 'popGov'],
+    'juv': ['newJuv', 'popJuv'],
+    'new': ['newNew', 'popNew'],
+    'cds': ['newCDs', 'popCDs'],
+    'dvds': ['newDVDs', 'popDVDs'],
+    'ebooks': ['newEbooks'],
+    'evideos': ['newEvideos'],
+    'audiobooks': ['popAudiobooks']
+  }
+  /*
+    Because some pages have 1 row, and others have 2 or 3,
+    we have to listen for which reqLocation is in the request
+    then look up which row or rows of carousels from 'locationRows'
+    then process the row or rows   --i.e., map(x => prepareRow(x))
+    then put the processed rows data into the bundle.
+  */
+  const carouselRows = locationsRows[reqLocation]
+  console.log(carouselRows)
+  const rows = await Promise.all(carouselRows.map(x => prepareRow(x, reqLocation)))
+
+  const bundle = {
+    rows,
+    reqLocation,
+    showFindIt,
+    noPop
+  }
+
+  if (!CACHE[reqURL]) {
+    CACHE[reqURL] = {}
+  }
+  CACHE[reqURL]['bundle'] = bundle
+  CACHE[reqURL]['time'] = Date.now()
+  return bundle
+}
+
+async function prepareRow (rowType, reqLocation) {
+  const rowChoices = {
+    'newBooks': {
+      lookup: async () => await queries.getNewBooks(sierra),
+      title: 'Newly Acquired Books',
+      rssFeed: 'https://library.uncw.edu/web/collections/new/books/feeds/NewTitles.xml',
+    },
+    'newVideos': {
+      lookup: async () => await queries.getNewVideos(sierra),
+      title: 'Newly Acquired Videos',
+      rssFeed: 'https://library.uncw.edu/web/collections/new/videos/feeds/NewVideos.xml',
+    },
+    'newMusic': {
+      lookup: async () => await queries.getNewMusic(sierra),
+      title: 'Newly Acquired Music',
+      rssFeed: 'https://library.uncw.edu/web/collections/new/cds/feeds/NewMusic.xml',
+    },
+    'uncwAuthors': {
+      lookup: async () => await queries.getUNCWAuthors(sierra),
+      title: 'UNCW Authors',
+      rssFeed: 'https://library.uncw.edu/web/collections/new/cds/feeds/UNCWAuthors.xml',
+    },
+    'newGeneral': {
+      lookup: async () => await queries.getNewGeneral(sierra),
+      title: 'Newly Acquired Items',
+      rssFeed: '',
+    },
+    'popGeneral': {
+      lookup: async () => await queries.getPopGeneral(sierra),
+      title: 'Most Popular Items',
+      rssFeed: '',
+    },
+    'newGeneral': {
+      lookup: async () => await queries.getNewGeneral(sierra),
+      title: 'Newly Acquired Items',
+      rssFeed: '',
+    },
+    'popGeneral': {
+      lookup: async () => await queries.getPopGeneral(sierra),
+      title: 'Most Popular Items',
+      rssFeed: '',
+    },
+    'newGov': {
+      lookup: async () => await queries.getNewGov(sierra),
+      title: 'Newly Acquired Items',
+      rssFeed: '',
+    },
+    'popGov': {
+      lookup: async () => await queries.getPopGov(sierra),
+      title: 'Most Popular Items',
+      rssFeed: '',
+    },
+    'newJuv': {
+      lookup: async () => await queries.getNewJuv(sierra),
+      title: 'Newly Acquired Items',
+      rssFeed: '',
+    },
+    'popJuv': {
+      lookup: async () => await queries.getPopJuv(sierra),
+      title: 'Most Popular Items',
+      rssFeed: '',
+    },
+    'newNew': {
+      lookup: async () => await queries.getNewNew(sierra),
+      title: 'Newly Acquired Items',
+      rssFeed: '',
+    },
+    'popNew': {
+      lookup: async () => await queries.getPopNew(sierra),
+      title: 'Most Popular Items',
+      rssFeed: '',
+    },
+    'newCDs': {
+      lookup: async () => await queries.getNewCDs(sierra),
+      title: 'Newly Acquired Items',
+      rssFeed: '',
+    },
+    'popCDs': {
+      lookup: async () => await queries.getPopCDs(sierra),
+      title: 'Most Popular Items',
+      rssFeed: '',
+    },
+    'newDVDs': {
+      lookup: async () => await queries.getNewDVDs(sierra),
+      title: 'Newly Acquired Items',
+      rssFeed: '',
+    },
+    'popDVDs': {
+      lookup: async () => await queries.getPopDVDs(sierra),
+      title: 'Most Popular Items',
+      rssFeed: '',
+    },
+    'newEbooks': {
+      lookup: async () => await queries.getNewEbooks(sierra),
+      title: 'Newly Acquired Items',
+      rssFeed: '',
+    },
+    'newEvideos': {
+      lookup: async () => await queries.getNewEvideos(sierra),
+      title: 'Newly Acquired Items',
+      rssFeed: '',
+    },
+    'popAudiobooks': {
+      lookup: async () => await queries.getPopAudiobooks(sierra),
+      title: 'Newly Acquired Items',
+      rssFeed: '',
+    },
+  }
+
+  const choice = rowChoices[rowType]
+  const response = await choice.lookup()
   const bulkData = response.rows
   if (!bulkData.length) {
     return [[]]
@@ -94,8 +226,8 @@ async function prepareRow (segment, reqLocation) {
   const items = await cleanupItems(bulkData, reqLocation)
   return {
     items: items,
-    title: title,
-    rssFeed: rssFeed
+    title: choice.title,
+    rssFeed: choice.rssFeed
   }
 }
 
@@ -147,6 +279,9 @@ function parseUPC (upcResponse, reqLocation) {
 
 function parseCallNumber (bestItem, reqLocation) {
   // BUG:  none of the queries can return a 'url'
+  if (!bestItem.url) {
+    return R.path(['call_number'], bestItem)
+  }
   if (['ebooks', 'evideos'].includes(reqLocation)) {
     return bestItem.url.replace(/[|].+/ig, '')
   } else {
@@ -201,5 +336,6 @@ function findBestItem (item, extrasResponse) {
 
 module.exports = {
   doFrontPage,
-  doUncwAuthorsPage
+  doUncwAuthorsPage,
+  doReadboxPage
 }

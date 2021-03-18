@@ -1,3 +1,29 @@
+<div class="location-filter">
+    <div class="input-group input-group-lg">
+    <div class="input-group-prepend">
+        <label class="input-group-text" for="">Location</label>
+    </div>
+    <select class="custom-select" id="location-select">
+        <option selected>Choose...</option>
+        {{#each locations}}
+            <option {{isSelected this.value ../location}} value="{{this.value}}">{{this.name}}</option>
+        {{/each}}
+    </select>
+    <script>
+        $(function(){
+            // bind change event to select
+            $('#location-select').on('change', function () {
+                var location = $(this).val(); // get selected value
+                if (location) { // require a URL
+                    window.location = '/readbox?location=' + location; // redirect
+                }
+                return false;
+            });
+        });
+    </script>
+    </div>
+</div>
+
 {{#each rows}}
     <!-- Each carousel row uses this same template -->
     <div class="row mb-5 mt-3 book-row">
@@ -30,6 +56,13 @@
                                             </div>
                                         </div>
                                     </a>
+                                    <div class="availability">
+                                        {{#if this.available}}
+                                        <span class="green"><i class="fas fa-check-circle"></i> Available</span>
+                                        {{else}}
+                                        <span class="red"><i class="fas fa-times-circle"></i> Unavailable</span>
+                                        {{/if}}
+                                    </div>
                                 </div>
                                 {{/each}}
                             </div>
@@ -54,36 +87,52 @@
     </div>
 {{/each}}
 
-
 <div style="text-align:center;">
     <div class="col-auto">
+      <!--  <iframe width="600" height="800" frameborder="0" src="https://randall-rotations.libapps-staff.uncw.edu/GovDocs/rotation"></iframe>-->
+            
+
+            <iframe src="https://popular-books.libapps.uncw.edu/portrait" style="width:100%; height:1000px;"></iframe>
+
     </div>
 </div>
 
 <!-- Modal -->
 <div class="modal fade" id="itemInfoModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="modalTitle">Title</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div id="sendAsTextIframe"></div>
-            {{#if showFindIt}}
-            <div id="findItIframe"></div>
-            {{/if}}
-            <div id="modalBodyImage" class="modal-body"></div>
-            <div id="modalBodyInfo" class="modal-body" style="padding:.3rem;"></div>
-            <div id="modalBodyDescription" class="modal-body"></div>
-            <div id="sendAsText" class="modal-body"></div>
-            <div id="openCatalog" class="modal-body"></div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-            </div>
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="modalTitle">Title</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div id="sendAsTextIframe">
+
+      </div>
+      {{#if showFindIt}}
+        <div id="findItIframe">
+
         </div>
+      {{/if}}
+      <div id="modalBodyImage" class="modal-body">
+
+      </div>
+      <div id="modalBodyInfo" class="modal-body" style="padding:.3rem;">
+
+      </div>
+      <div id="modalBodyDescription" class="modal-body">
+
+      </div>
+      <div id="sendAsText" class="modal-body">
+
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+
+      </div>
     </div>
+  </div>
 </div>
 
 <script>
@@ -125,7 +174,7 @@
         $('#sendAsText').html('');
     }
 
-    function updateModal(isbn, UPC, title, titleFixed,  author, callNumber, location, errorImage, available, recordnum) {
+    function updateModal(isbn, UPC, title, titleFixed, author, callNumber, location, errorImage) {
         $('#sendAsTextIframe').html('');
       
         $('#findItIframe').html('');
@@ -140,21 +189,23 @@
             '<div class="col-auto" style="text-align:center;"><strong>Call Number</strong>: ' +
             callNumber.toUpperCase() +
             '<br/><strong>Location</strong>: ' +
-            location + ' <br/><strong>Availability</strong>: '
-            + available + '</div>'
+            location + 
+            '</div>'
             );
         } else {
                $('#modalBodyInfo').html('' +
-            '<div class="col-auto" style="text-align:center;"><strong>Click on button "See Catalog Record" to access Electronic Resource</strong>: ' +
+            '<div class="col-auto" style="text-align:center;"><strong>URL</strong>: ' +
             callNumber.toUpperCase() +
+           
             '</div>'
             );
         }
+
+
         location = location.replace(/[']/gi, '\\\'').replace(/["]/gi, '\\"');
         title = title.replace(/[']/gi, '\\\'').replace(/["]/gi, '\\"');
         $('#sendAsText').html(''+ 
-                                 '<img style="margin:10px;" onclick="sendAsText(\'https://twilio.libapps.uncw.edu/sendCallNumber?bookLocation='+location+'&bookCallNumber='+callNumber+'&bookTitle='+title+'\');" src="/images/sendAsTxt.gif"/>' +
-                              '<a target="blank" href="https://libcat.uncw.edu/record=b'+recordnum+'"><img src="/images/catalogRecord.gif"/><img ></a>'+
+                                 '<img style="margin:10px;" onclick="sendAsText(\'https://twilio.libapps.uncw.edu/sendCallNumber?bookLocation='+location+'&bookCallNumber='+callNumber.toUpperCase()+'&bookTitle='+title+'\');" src="/images/sendAsTxt.gif"/>' +
                                  {{#if showFindIt}}
                                     '<img style="margin:10px;" onclick="findIt(\'https://findit.libapps.uncw.edu/stacks?callNumber='+callNumber+'&collection='+location+'\', \''+callNumber.toUpperCase()+'\');" src="/images/FindIT2-Button.png"/>' +
                                  {{/if}}
@@ -162,6 +213,7 @@
         $('#modalBodyDescription').html('' +
         '<p><div id="syn_summary"></div></p>'
         )
+
         syn_get_plus();
     }
 </script>

@@ -12,8 +12,10 @@ let CACHE = {}
 
 async function doFrontPage (req, res, next) {
   // return early if there's a cache and it's less than a day old.
-  if (FRONTPAGE_CACHE && FRONTPAGE_CACHE_TIME && (Date.now() - FRONTPAGE_CACHE_TIME < 86400000)) {
-    return FRONTPAGE_CACHE
+  // CACHE has a key for each reqURL
+  const reqURL = req.url
+  if (CACHE[reqURL] && CACHE[reqURL]['time'] && (Date.now() - CACHE[reqURL]['time'] < 86400000)) {
+    return CACHE[reqURL]['bundle']
   }
 
   const reqLocation = req.query.location || 'gen'
@@ -29,15 +31,21 @@ async function doFrontPage (req, res, next) {
     showFindIt,
     noPop
   }
-  FRONTPAGE_CACHE = bundle
-  FRONTPAGE_CACHE_TIME = Date.now()
+  
+  if (!CACHE[reqURL]) {
+    CACHE[reqURL] = {}
+  }
+  CACHE[reqURL]['bundle'] = bundle
+  CACHE[reqURL]['time'] = Date.now()
   return bundle
 }
 
 async function doUncwAuthorsPage (req, res, next) {
   // return early if there's a cache and it's less than a day old.
-  if (AUTHORS_CACHE && AUTHORS_CACHE_TIME && (Date.now() - AUTHORS_CACHE_TIME < 86400000)) {
-    return AUTHORS_CACHE
+  // CACHE has a key for each reqURL
+  const reqURL = req.url
+  if (CACHE[reqURL] && CACHE[reqURL]['time'] && (Date.now() - CACHE[reqURL]['time'] < 86400000)) {
+    return CACHE[reqURL]['bundle']
   }
 
   const reqLocation = req.query.location || 'gen'
@@ -54,8 +62,12 @@ async function doUncwAuthorsPage (req, res, next) {
     showFindIt,
     noPop
   }
-  AUTHORS_CACHE = bundle
-  AUTHORS_CACHE_TIME = Date.now()
+
+  if (!CACHE[reqURL]) {
+    CACHE[reqURL] = {}
+  }
+  CACHE[reqURL]['bundle'] = bundle
+  CACHE[reqURL]['time'] = Date.now()
   return bundle
 }
 
@@ -71,6 +83,13 @@ async function doReadboxPage (req, res, next) {
   const showFindIt = (reqLocation !== 'ebooks' && reqLocation !== 'evideos')
   const noPop = (reqLocation === 'ebooks' || reqLocation === 'evideos')
 
+  /*
+    Because some pages have 1 carousel row, and others have 2 or 3,
+    we have to listen for the incoming request's reqLocation
+    then we look in 'locationRows' for the page's carousel row or rows
+    then grab the data for that row or rows   --using map(x => prepareRow(x))
+    then put that processed data into the response bundle.
+  */
   const locationsRows = {
     'gen': ['newGeneral', 'popGeneral'],
     'gov': ['newGov', 'popGov'],
@@ -82,15 +101,11 @@ async function doReadboxPage (req, res, next) {
     'evideos': ['newEvideos'],
     'audiobooks': ['popAudiobooks']
   }
-  /*
-    Because some pages have 1 row, and others have 2 or 3,
-    we have to listen for which reqLocation is in the request
-    then look up which row or rows of carousels from 'locationRows'
-    then process the row or rows   --i.e., map(x => prepareRow(x))
-    then put the processed rows data into the bundle.
-  */
   const carouselRows = locationsRows[reqLocation]
   console.log(carouselRows)
+  // this runs 'prepareRow(x)' on each item in carouselRows
+  // using parallel async for speed.
+  // It waits until all the prepareRow() is done before allowing anything using 'rows' to run.
   const rows = await Promise.all(carouselRows.map(x => prepareRow(x, reqLocation)))
 
   const bundle = {
@@ -128,7 +143,7 @@ async function prepareRow (rowType, reqLocation) {
     'uncwAuthors': {
       lookup: async () => await queries.getUNCWAuthors(sierra),
       title: 'UNCW Authors',
-      rssFeed: 'https://library.uncw.edu/web/collections/new/cds/feeds/UNCWAuthors.xml',
+      rssFeed: '',
     },
     'newGeneral': {
       lookup: async () => await queries.getNewGeneral(sierra),

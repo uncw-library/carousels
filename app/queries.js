@@ -1,4 +1,6 @@
-async function getISBN (sierra, bib) {
+const sierraPool = require('./sierraPool')
+
+async function getISBN (bib) {
   const values = [bib]
   const sql = `
     SELECT DISTINCT varfield_view.field_content
@@ -10,10 +12,10 @@ async function getISBN (sierra, bib) {
       AND sierra_view.bib_view.record_num = $1
     LIMIT 1
   `
-  return await sierra.query(sql, values)
+  return await sierraPool.query(sql, values)
 }
 
-async function getUPC (sierra, bib) {
+async function getUPC (bib) {
   const values = [bib]
   const sql = `
     SELECT DISTINCT field_content
@@ -25,10 +27,10 @@ async function getUPC (sierra, bib) {
       AND sierra_view.bib_view.record_num = $1
     limit 1
   `
-  return await sierra.query(sql, values)
+  return await sierraPool.query(sql, values)
 }
 
-async function getExtras (sierra, bib) {
+async function getExtras (bib) {
   const values = [bib]
   const sql = `
     SELECT is_available_at_library,
@@ -48,10 +50,10 @@ async function getExtras (sierra, bib) {
       ON sierra_view.location_name.location_id = location.id
     WHERE bib_view.record_num = $1
   `
-  return await sierra.query(sql, values)
+  return await sierraPool.query(sql, values)
 }
 
-async function getNewBooks (sierra) {
+async function getNewBooks () {
   const sql = `
     SELECT DISTINCT
       bib_view.record_num as recordnum,
@@ -74,10 +76,10 @@ async function getNewBooks (sierra) {
       AND copy_num = '1'
     LIMIT 50
   `
-  return await sierra.query(sql)
+  return await sierraPool.query(sql)
 }
 
-async function getNewVideos (sierra) {
+async function getNewVideos () {
   const sql = `
     SELECT DISTINCT
       bib_view.record_num as recordnum,
@@ -99,10 +101,10 @@ async function getNewVideos (sierra) {
       AND item_view.record_creation_date_gmt >= (current_date - 90)
       AND copy_num = '1'
   `
-  return await sierra.query(sql)
+  return await sierraPool.query(sql)
 }
 
-async function getNewMusic (sierra) {
+async function getNewMusic () {
   const sql = `
     SELECT DISTINCT
       bib_view.record_num as recordnum,
@@ -126,10 +128,10 @@ async function getNewMusic (sierra) {
   ORDER BY creation_date DESC
   LIMIT 50
   `
-  return await sierra.query(sql)
+  return await sierraPool.query(sql)
 }
 
-async function getUNCWAuthors (sierra) {
+async function getUNCWAuthors () {
   const sql = `
     SELECT bib_view.record_num as recordnum,
       best_title_norm as title,
@@ -146,11 +148,11 @@ async function getUNCWAuthors (sierra) {
       AND varfield_view.record_type_code = 'b'
     ORDER BY best_author_norm desc
   `
-  return await sierra.query(sql)
+  return await sierraPool.query(sql)
 }
 
-async function getNewGeneral (sierra) {
-  sql = `
+async function getNewGeneral () {
+  const sql = `
     SELECT DISTINCT 
       bib_view.record_num as recordnum,
       best_title as title,
@@ -171,11 +173,11 @@ async function getNewGeneral (sierra) {
       AND copy_num = '1'
     LIMIT 100
   `
-  return await sierra.query(sql)
+  return await sierraPool.query(sql)
 }
 
-async function getNewGov (sierra) {
-  sql = `
+async function getNewGov () {
+  const sql = `
     SELECT DISTINCT 
       bib_view.record_num as recordnum,
       best_title as title,
@@ -196,11 +198,11 @@ async function getNewGov (sierra) {
       AND copy_num = '1'
     LIMIT 100
   `
-  return await sierra.query(sql)
+  return await sierraPool.query(sql)
 }
 
-async function getNewJuv (sierra) {
-  sql = `
+async function getNewJuv () {
+  const sql = `
     SELECT DISTINCT 
       bib_view.record_num as recordnum,
       best_title as title,
@@ -221,11 +223,11 @@ async function getNewJuv (sierra) {
       AND copy_num = '1'
     LIMIT 100
   `
-  return await sierra.query(sql)
+  return await sierraPool.query(sql)
 }
 
-async function getNewNew (sierra) {
-  sql = `
+async function getNewNew () {
+  const sql = `
     SELECT DISTINCT 
       bib_view.record_num as recordnum,
       best_title as title,
@@ -246,11 +248,11 @@ async function getNewNew (sierra) {
       AND copy_num = '1'
     LIMIT 100
   `
-  return await sierra.query(sql)
+  return await sierraPool.query(sql)
 }
 
-async function getNewCDs (sierra) {
-  sql = `
+async function getNewCDs () {
+  const sql = `
     SELECT DISTINCT 
       bib_view.record_num as recordnum,
       best_title as title,
@@ -271,11 +273,11 @@ async function getNewCDs (sierra) {
       AND copy_num = '1'
     LIMIT 100
   `
-  return await sierra.query(sql)
+  return await sierraPool.query(sql)
 }
 
-async function getNewDVDs (sierra) {
-  sql = `
+async function getNewDVDs () {
+  const sql = `
     SELECT DISTINCT 
       bib_view.record_num as recordnum,
       best_title as title,
@@ -296,11 +298,11 @@ async function getNewDVDs (sierra) {
       AND copy_num = '1'
     LIMIT 100
   `
-  return await sierra.query(sql)
+  return await sierraPool.query(sql)
 }
 
-async function getNewEbooks (sierra) {
-  sql = `
+async function getNewEbooks () {
+  const sql = `
     SELECT DISTINCT 
       bib_view.record_num as recordnum,
       best_title as title,
@@ -325,11 +327,11 @@ async function getNewEbooks (sierra) {
       AND bib_view.record_creation_date_gmt >= (current_date - 90)
     LIMIT 100
   `
-  return await sierra.query(sql)
+  return await sierraPool.query(sql)
 }
 
-async function getNewEvideos (sierra) {
-  sql = `
+async function getNewEvideos () {
+  const sql = `
     SELECT DISTINCT 
       bib_view.record_num as recordnum,
       best_title as title,
@@ -354,10 +356,10 @@ async function getNewEvideos (sierra) {
       AND bib_view.record_creation_date_gmt >= (current_date - 90)
     LIMIT 100
   `
-  return await sierra.query(sql)
+  return await sierraPool.query(sql)
 }
 
-async function getPopGeneral (sierra) {
+async function getPopGeneral () {
   const sql = `
     SELECT DISTINCT
       bib_view.record_num as recordnum,
@@ -381,10 +383,10 @@ async function getPopGeneral (sierra) {
     ORDER BY checkout_total DESC
     LIMIT 36
   `
-  return await sierra.query(sql)   
+  return await sierraPool.query(sql)
 }
 
-async function getPopGov (sierra) {
+async function getPopGov () {
   const sql = `
     SELECT DISTINCT
       bib_view.record_num as recordnum,
@@ -408,10 +410,10 @@ async function getPopGov (sierra) {
     ORDER BY checkout_total DESC
     LIMIT 36
   `
-  return await sierra.query(sql) 
+  return await sierraPool.query(sql)
 }
 
-async function getPopJuv (sierra) {
+async function getPopJuv () {
   const sql = `
     SELECT DISTINCT
       bib_view.record_num as recordnum,
@@ -435,10 +437,10 @@ async function getPopJuv (sierra) {
     ORDER BY checkout_total DESC
     LIMIT 36
   `
-  return await sierra.query(sql)  
+  return await sierraPool.query(sql)
 }
 
-async function getPopNew (sierra) {
+async function getPopNew () {
   const sql = `
     SELECT DISTINCT
       bib_view.record_num as recordnum,
@@ -461,10 +463,10 @@ async function getPopNew (sierra) {
     ORDER BY checkout_total DESC
     LIMIT 36
   `
-  return await sierra.query(sql)   
+  return await sierraPool.query(sql)
 }
 
-async function getPopCDs (sierra) {
+async function getPopCDs () {
   const sql = `
     SELECT DISTINCT
       bib_view.record_num as recordnum,
@@ -488,10 +490,10 @@ async function getPopCDs (sierra) {
     ORDER BY checkout_total DESC
     LIMIT 36
   `
-  return await sierra.query(sql)  
+  return await sierraPool.query(sql)
 }
 
-async function getPopDVDs (sierra) {
+async function getPopDVDs () {
   const sql = `
     SELECT DISTINCT
       bib_view.record_num as recordnum,
@@ -515,10 +517,10 @@ async function getPopDVDs (sierra) {
     ORDER BY checkout_total DESC
     LIMIT 36
   `
-  return await sierra.query(sql)
+  return await sierraPool.query(sql)
 }
 
-async function getPopAudiobooks (sierra) {
+async function getPopAudiobooks () {
   const sql = `
     SELECT DISTINCT
       bib_view.record_num as recordnum,
@@ -542,9 +544,8 @@ async function getPopAudiobooks (sierra) {
     ORDER BY checkout_total DESC
     LIMIT 36
   `
-  return await sierra.query(sql)
+  return await sierraPool.query(sql)
 }
-
 
 module.exports = {
   getNewBooks,

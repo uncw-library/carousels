@@ -1,4 +1,4 @@
-{{#each rows}}
+{{#each carousels.rows}}
     <!-- Each carousel row uses this same template -->
     <div class="row mb-5 mt-3 book-row">
         <div class="card book-card">
@@ -6,7 +6,7 @@
                 <!-- row title elem -->
                 <h5 class="card-title">
                     {{this.title}}
-                    {{#if this.rssfeed}}
+                    {{#if this.rssFeed}}
                     <a href="{{this.rssFeed}}" title="Subscribe to Library {{this.title}} Feed">
                         <img src="https://library.uncw.edu/misc/feed.png" width="16" height="16" alt="Subscribe to Library {{this.title}} Feed" />
                     </a>

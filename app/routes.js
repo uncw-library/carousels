@@ -1,41 +1,32 @@
 const express = require('express')
 
 const router = express.Router()
-const controller = require('./controller')
+const { makeCarousels } = require('./carousels')
 
 router.get('/', async (req, res, next) => {
-  const {
-    rows,
-    location,
-    showFindIt,
-    noPop
-  } = await controller.doFrontPage(req, res, next)
-
-  res.render('home', {
-    rows,
-    location,
-    showFindIt,
-    noPop
-  })
+  const pageType = 'newTitles'
+  const reqURL = req.url
+  const carousels = await makeCarousels(pageType, reqURL, next)
+  const payload = {
+    carousels
+  }
+  res.render('justCarousels', payload)
 })
 
 router.get('/uncw-authors', async (req, res, next) => {
-  const {
-    rows,
-    location,
-    showFindIt,
-    noPop
-  } = await controller.doUncwAuthorsPage(req, res, next)
-
-  res.render('home', {
-    rows,
-    location,
-    showFindIt,
-    noPop
-  })
+  const pageType = 'uncwAuthors'
+  const reqURL = req.url
+  const carousels = await makeCarousels(pageType, reqURL, next)
+  const payload = {
+    carousels
+  }
+  res.render('justCarousels', payload)
 })
 
 router.get('/readbox*', async (req, res, next) => {
+  const pageType = req.query.location || 'gen'
+  const reqURL = req.url
+  const carousels = await makeCarousels(pageType, reqURL, next)
   const locations = [
     { name: 'General Collection', value: 'gen' },
     { name: 'Government Resources', value: 'gov' },
@@ -47,21 +38,11 @@ router.get('/readbox*', async (req, res, next) => {
     { name: 'Streaming Videos', value: 'evideos' },
     { name: 'Audiobooks', value: 'audiobooks' }
   ]
-
-  const {
-    rows,
-    location,
-    showFindIt,
-    noPop
-  } = await controller.doReadboxPage(req, res, next)
-
-  res.render('readbox', {
-    rows,
-    location,
-    showFindIt,
-    noPop,
+  const payload = {
+    carousels,
     locations
-  })
+  }
+  res.render('readbox', payload)
 })
 
 module.exports = router

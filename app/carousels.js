@@ -3,7 +3,6 @@ const _ = require('lodash')
 
 const sierra = require('./queries')
 
-const ITEMS_PER_SLIDE = 5
 const CACHE = {}
 
 async function makeCarousels (pageType, reqURL, next) {
@@ -14,13 +13,9 @@ async function makeCarousels (pageType, reqURL, next) {
   if (CACHE[reqURL] && CACHE[reqURL].time && (Date.now() - CACHE[reqURL].time < 86400000)) {
     return CACHE[reqURL].bundle
   }
-
-  const showFindIt = (pageType !== 'ebooks' && pageType !== 'evideos')
-  const noPop = (pageType === 'ebooks' || pageType === 'evideos')
-
   /*
     Because some pages have 1 carousel row, and others have 2 or 3,
-    we take the incoming request's pageType 
+    we take the incoming request's pageType
     then we find the carousels for that pageType in 'pageTypeToCarouselRows'.
     After querying & cleaning up the data for each carousel   --using map(x => makeOneCarousel(x))
     we send that processed data back to the frontend template for rendering.
@@ -36,7 +31,9 @@ async function makeCarousels (pageType, reqURL, next) {
     evideos: ['newEvideos'],
     audiobooks: ['popAudiobooks'],
     uncwAuthors: ['uncwAuthors'],
-    newTitles: ['newBooks', 'newVideos', 'newMusic']
+    newTitles: ['newBooks', 'newVideos', 'newMusic'],
+    popularTitles: ['newNew'],
+    singleNewBooks: ['newBooks']
   }
   const carouselRows = pageTypeToCarouselRows[pageType]
   /*
@@ -45,7 +42,8 @@ async function makeCarousels (pageType, reqURL, next) {
     It waits until all the makeOneCarousel() is done before allowing anything using 'rows' to run.
   */
   const rows = await Promise.all(carouselRows.map(rowType => makeOneCarousel(rowType, pageType)))
-
+  const showFindIt = (pageType !== 'ebooks' && pageType !== 'evideos')
+  const noPop = (pageType === 'ebooks' || pageType === 'evideos')
   const bundle = {
     rows,
     pageType,
@@ -165,10 +163,11 @@ async function makeOneCarousel (rowType, pageType) {
   const choice = rowChoices[rowType]
   const result = await choice.query()
   const bulkData = result.rows
-  if (!bulkData.length) {
+  const shuffledData = _.shuffle(bulkData)
+  if (!shuffledData.length) {
     return [[]]
   }
-  const items = await cleanupItems(bulkData, pageType)
+  const items = await cleanupItems(shuffledData, pageType)
   return {
     items: items,
     title: choice.title,
@@ -201,8 +200,9 @@ async function cleanupItems (bulkData, pageType) {
       }
     })
   )
-  // the carousel display needs a chunked array
-  const chunked = _.chunk(slimData, ITEMS_PER_SLIDE)
+  // the carousel display needs [[5 items],[5 items], etc]
+  const itemsPerSlide = 5
+  const chunked = _.chunk(slimData, itemsPerSlide)
   return chunked
 }
 

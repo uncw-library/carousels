@@ -3,14 +3,32 @@ const sierraPool = require('./sierraPool')
 async function getISBN (bib) {
   const values = [bib]
   const sql = `
-    SELECT DISTINCT varfield_view.field_content
-    FROM sierra_view.bib_view
-    LEFT JOIN sierra_view.varfield_view
-      ON sierra_view.varfield_view.record_id = sierra_view.bib_view.id
-    WHERE
-      marc_tag = '020'
-      AND sierra_view.bib_view.record_num = $1
-    LIMIT 1
+    (
+      SELECT varfield_view.field_content
+      FROM sierra_view.bib_view
+      LEFT JOIN sierra_view.varfield_view
+        ON sierra_view.varfield_view.record_id=sierra_view.bib_view.id
+      WHERE
+        marc_tag='020'
+        and (ltrim(substr(varfield_view.field_content,3, 15))) like '%|%'
+        and varfield_view.field_content not like '%|z%'
+        and sierra_view.bib_view.record_num= $1
+      order by occ_num
+    )
+    union all
+    (
+      SELECT varfield_view.field_content
+      FROM sierra_view.bib_view
+      LEFT JOIN sierra_view.varfield_view
+        ON sierra_view.varfield_view.record_id=sierra_view.bib_view.id
+      WHERE
+        marc_tag='020'
+        and (ltrim(substr(varfield_view.field_content,3, 15))) not like '%|%'
+        and varfield_view.field_content not like '%|z%'
+        and sierra_view.bib_view.record_num= $1
+      order by occ_num
+    )
+    limit 1
   `
   return await sierraPool.query(sql, values)
 }

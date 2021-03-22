@@ -1,0 +1,41 @@
+
+<!--The following script call Syndetics content-->
+<script src="https://secure.syndetics.com/widget.php?id=uncwh&css=css/styles_syndetics.css" type="text/javascript">
+</script>
+
+{{#each carousels.rows}}
+    <!-- Each carousel row uses this same template -->
+    <div class="" stl>
+        {{#each this.items}}
+            <!-- each chunk of 5 items, i.e, 5 books, cds, etc -->
+            <div>
+            {{#each this}}
+                <!-- each item in the chunk, i.e., a book, cd, etc -->
+                <div class="" style="width:20%;display:inline-block;">
+                    <a target="_blank" href="http://libcat.uncw.edu/record=b{{this.recordnum}}~S4">
+                        <img class="img" width="100%" src="http://www.syndetics.com/index.php?isbn={{this.isbn}}/lc.gif&client=uncwh" style="height:50vh;" onerror="style='display:none;'">
+                    </a>
+                </div>
+            {{/each}}
+            </div>
+        {{/each}}
+    </div>
+{{/each}}
+
+<script>
+    $('img').on("error", function() {
+        $(this).attr('style', 'display:none');
+    });    
+
+    $(window).on( "load", function() {
+        $('.img:visible:gt(9)').remove();
+    })
+</script>
+
+<style>
+    body {
+        font-size: 0;
+        height: 100vh;
+    }
+</style>
+

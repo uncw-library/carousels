@@ -10,7 +10,7 @@ router.get('/', async (req, res, next) => {
   const payload = {
     carousels
   }
-  res.render('justCarousels', payload)
+  res.render('just-carousels-template', payload)
 })
 
 router.get('/uncw-authors', async (req, res, next) => {
@@ -20,7 +20,7 @@ router.get('/uncw-authors', async (req, res, next) => {
   const payload = {
     carousels
   }
-  res.render('justCarousels', payload)
+  res.render('uncw-authors-template', payload)
 })
 
 router.get('/readbox*', async (req, res, next) => {
@@ -42,7 +42,7 @@ router.get('/readbox*', async (req, res, next) => {
     carousels,
     locations
   }
-  res.render('readbox', payload)
+  res.render('readbox-template', payload)
 })
 
 module.exports = router

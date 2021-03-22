@@ -20,10 +20,10 @@ async function makeCarousels (pageType, reqURL, next) {
 
   /*
     Because some pages have 1 carousel row, and others have 2 or 3,
-    we have to listen for the incoming request's pageType
-    then we look in 'pageTypeToCarouselRows' for the page's carousel row or rows
-    then grab the data for that row or rows   --using map(x => makeOneCarousel(x))
-    then put that processed data into the response bundle.
+    we take the incoming request's pageType 
+    then we find the carousels for that pageType in 'pageTypeToCarouselRows'.
+    After querying & cleaning up the data for each carousel   --using map(x => makeOneCarousel(x))
+    we send that processed data back to the frontend template for rendering.
   */
   const pageTypeToCarouselRows = {
     gen: ['newGeneral', 'popGeneral'],
@@ -35,7 +35,7 @@ async function makeCarousels (pageType, reqURL, next) {
     ebooks: ['newEbooks'],
     evideos: ['newEvideos'],
     audiobooks: ['popAudiobooks'],
-    uncwAuthors: ['uncwAuthors', 'newVideos', 'newMusic'],
+    uncwAuthors: ['uncwAuthors'],
     newTitles: ['newBooks', 'newVideos', 'newMusic']
   }
   const carouselRows = pageTypeToCarouselRows[pageType]
@@ -205,6 +205,8 @@ async function cleanupItems (bulkData, pageType) {
   const chunked = _.chunk(slimData, ITEMS_PER_SLIDE)
   return chunked
 }
+
+// Helper Functions
 
 function parseISBN (isbnResponse, pageType) {
   const fieldContent = R.path(['rows', 0, 'field_content'], isbnResponse)

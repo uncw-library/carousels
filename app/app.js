@@ -44,7 +44,7 @@ app.use((err, req, res, next) => {
   res.locals.message = err.message
   // send error details to view only in development
   res.locals.error = app.get('env') === 'development' ? err : {}
-  res.render('error')
+  res.render('error-template')
 })
 
 // Handlebars custom plugins

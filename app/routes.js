@@ -3,7 +3,7 @@ const express = require('express')
 const router = express.Router()
 const { makeCarousels } = require('./carousels')
 
-router.get('/', async (req, res, next) => {
+router.get('/new-titles', async (req, res, next) => {
   const pageType = 'newTitles'
   const reqURL = req.url
   const carousels = await makeCarousels(pageType, reqURL, next)

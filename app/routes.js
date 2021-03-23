@@ -37,20 +37,8 @@ router.get('/readbox*', async (req, res, next) => {
   const pageType = req.query.location || 'gen'
   const reqURL = req.url
   const carousels = await makeCarousels(pageType, reqURL, next)
-  const locations = [
-    { name: 'General Collection', value: 'gen' },
-    { name: 'Government Resources', value: 'gov' },
-    { name: 'Juvenile Collection', value: 'juv' },
-    { name: 'New and Popular Collection', value: 'new' },
-    { name: 'CDs', value: 'cds' },
-    { name: 'DVDs', value: 'dvds' },
-    { name: 'Ebooks', value: 'ebooks' },
-    { name: 'Streaming Videos', value: 'evideos' },
-    { name: 'Audiobooks', value: 'audiobooks' }
-  ]
   const payload = {
-    carousels,
-    locations
+    carousels
   }
   res.render('readbox-template', payload)
 })

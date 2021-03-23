@@ -1,4 +1,3 @@
-<!-- Header -->
 <header id="header" class="clearfix" role="banner">
     <div id="header-top" class="clearfix">
         <center>
@@ -7,25 +6,28 @@
     </div>
 </header>
 
-<!-- Location dropdown -->
 <div class="location-filter">
     <div class="input-group input-group-lg">
     <div class="input-group-prepend">
         <label class="input-group-text" for="">Location</label>
     </div>
     <select class="custom-select" id="location-select">
-        <option selected>Choose...</option>
-        {{#each locations}}
-            <option {{isSelected this.value ../location}} value="{{this.value}}">{{this.name}}</option>
-        {{/each}}
+        <option {{isSelected carousels.pageType 'gen'}} value="gen">General Collection</option>
+        <option {{isSelected carousels.pageType 'gov'}} value="gov">Government Resources</option>
+        <option {{isSelected carousels.pageType 'juv'}} value="juv">Juvenile Collection</option>
+        <option {{isSelected carousels.pageType 'new'}} value="new">New and Popular Collection</option>
+        <option {{isSelected carousels.pageType 'cds'}} value="cds">CDs</option>
+        <option {{isSelected carousels.pageType 'dvds'}} value="dvds">DVDs</option>
+        <option {{isSelected carousels.pageType 'ebooks'}} value="ebooks">ebooks</option>
+        <option {{isSelected carousels.pageType 'evideos'}} value="evideos">Streaming Videos</option>
+        <option {{isSelected carousels.pageType 'audiobooks'}} value="audiobooks">Audiobooks</option>
     </select>
     <script>
         $(function(){
-            // bind change event to select
             $('#location-select').on('change', function () {
-                var location = $(this).val(); // get selected value
-                if (location) { // require a URL
-                    window.location = '/readbox?location=' + location; // redirect
+                var location = $(this).val(); 
+                if (location) {
+                    window.location = '/readbox?location=' + location;
                 }
                 return false;
             });

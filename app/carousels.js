@@ -5,18 +5,28 @@ const sierra = require('./queries')
 
 const CACHE = {}
 
-async function makeCarousels (pageType, reqURL, next) {
+async function makeCarouselsCached(pageType, reqURL, next) {
   /*
-    return early, if there's a cache and it's less than a day old.
-    CACHE is like {reqURL: {'bundle': bundle, 'time': timeLastRun}, etc}.
+    return early, if this reqURL has a cache and it's less than a day old.
+    CACHE is like {reqURL: {'carousels': carousels, 'time': timeLastRun}, etc}.
   */
   if (CACHE[reqURL] && CACHE[reqURL].time && (Date.now() - CACHE[reqURL].time < 86400000)) {
-    return CACHE[reqURL].bundle
+    return CACHE[reqURL].carousles
   }
+  const carousels = await makeCarousels(pageType, reqURL, next)
+  if (!CACHE[reqURL]) {
+    CACHE[reqURL] = {}
+  }
+  CACHE[reqURL].carousles = carousels
+  CACHE[reqURL].time = Date.now()
+  return carousels
+}
+
+async function makeCarousels (pageType, reqURL, next) {
   /*
     Because some pages have 1 carousel row, and others have 2 or 3,
-    we take the incoming request's pageType
-    then we find the carousels for that pageType in 'pageTypeToCarouselRows'.
+    we we match the incoming pageType (using pageTypeToCarouselRows)
+    to find the carousels for that pageType.
     After querying & cleaning up the data for each carousel   --using map(x => makeOneCarousel(x))
     we send that processed data back to the frontend template for rendering.
   */
@@ -37,29 +47,22 @@ async function makeCarousels (pageType, reqURL, next) {
   }
   const carouselRows = pageTypeToCarouselRows[pageType]
   /*
-    Run 'makeOneCarousel(rowType)' on each item in carouselRows
-    uses parallel async for speed.
-    It waits until all the makeOneCarousel() is done before allowing anything using 'rows' to run.
+    Run 'makeOneCarousel(rowType)' on each item in carouselRows, using parallel async for speed.
+    It waits until every makeOneCarousel() is done before allowing anything to use 'rows'.
   */
-  const rows = await Promise.all(carouselRows.map(rowType => makeOneCarousel(rowType, pageType)))
+  const rows = await Promise.all(carouselRows.map(rowType => makeOneCarousel(rowType, pageType, next)))
   const showFindIt = (pageType !== 'ebooks' && pageType !== 'evideos')
   const noPop = (pageType === 'ebooks' || pageType === 'evideos')
-  const bundle = {
+  const carousels = {
     rows,
     pageType,
     showFindIt,
     noPop
   }
-
-  if (!CACHE[reqURL]) {
-    CACHE[reqURL] = {}
-  }
-  CACHE[reqURL].bundle = bundle
-  CACHE[reqURL].time = Date.now()
-  return bundle
+  return carousels
 }
 
-async function makeOneCarousel (rowType, pageType) {
+async function makeOneCarousel (rowType, pageType, next) {
   // rowChoices names the details for each carousel row
   // we use rowType to choose one rowChoice, and build one carousel
   const rowChoices = {
@@ -161,13 +164,13 @@ async function makeOneCarousel (rowType, pageType) {
   }
 
   const choice = rowChoices[rowType]
-  const result = await choice.query()
-  const bulkData = result.rows
-  const shuffledData = _.shuffle(bulkData)
-  if (!shuffledData.length) {
+  const result = await choice.query().catch(next)
+  if (!result || !result.rows || !result.rows.length) {
     return [[]]
   }
-  const items = await cleanupItems(shuffledData, pageType)
+  const bulkData = result.rows
+  const shuffledData = _.shuffle(bulkData)
+  const items = await cleanupItems(shuffledData, pageType, next)
   return {
     items: items,
     title: choice.title,
@@ -175,7 +178,7 @@ async function makeOneCarousel (rowType, pageType) {
   }
 }
 
-async function cleanupItems (bulkData, pageType) {
+async function cleanupItems (bulkData, pageType, next) {
   /*
   900 queries right here.  3 rows x 100 items/row x 3 queries/item.
   For speed, using parallel async.
@@ -199,7 +202,7 @@ async function cleanupItems (bulkData, pageType) {
         authorFixed: shortenAuthor(item)
       }
     })
-  )
+  ).catch(next)
   // the carousel display needs [[5 items],[5 items], etc]
   const itemsPerSlide = 5
   const chunked = _.chunk(slimData, itemsPerSlide)
@@ -282,5 +285,5 @@ function findBestItem (item, extrasResponse) {
 }
 
 module.exports = {
-  makeCarousels
+  makeCarouselsCached
 }

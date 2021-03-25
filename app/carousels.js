@@ -203,13 +203,23 @@ async function cleanupItems (bulkData, pageType, next) {
       }
     })
   ).catch(next)
-  // the carousel display needs [[5 items],[5 items], etc]
-  const itemsPerSlide = 5
-  const chunked = _.chunk(slimData, itemsPerSlide)
+
+  const chunked = chunkItems(slimData, pageType)
   return chunked
 }
 
 // Helper Functions
+
+function chunkItems (slimData, pageType) {
+  let itemsPerSlide
+  if (pageType === 'singleNewBooks') {
+    itemsPerSlide = 7
+  } else {
+    itemsPerSlide = 5
+  }
+  const chunked = _.chunk(slimData, itemsPerSlide)
+  return chunked
+}
 
 function parseISBN (isbnResponse, pageType) {
   const fieldContent = R.path(['rows', 0, 'field_content'], isbnResponse)

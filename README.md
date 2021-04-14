@@ -1,8 +1,18 @@
-## New Titles
+## Carousels
 
 This repo builds an Express app.  Currently it is linked on the drupal7 mainsite frontpage, as well as on a freestanding kiosk.
 
 The app returns an html pages with carousels of recently added books, videos, and music.
+
+Endpoints:
+
+https://carousels.libapps.uncw.edu/new-books
+https://carousels.libapps.uncw.edu/new-titles
+https://carousels.libapps.uncw.edu/popular-titles
+https://carousels.libapps.uncw.edu/readbox
+https://carousels.libapps.uncw.edu/uncw-authors
+
+Merges these app (obsoletes them): new-titles, readbox, widgets, uncw-authors
 
 
 ### To build a dev box
@@ -18,9 +28,9 @@ NODE_ENV=development
   - The actual User/Password can be found in the Rancher web interface:
 
     - External tab in titlebar
-    - new-titles item in User Stacks
-    - new-titles item in Stack
-    - new-titles-new-titles-1 in the "Container" tab
+    - carousels item in User Stacks
+    - carousels item in Stack
+    - carousels-carousels-1 in the "Container" tab
     - "Command" tab, Environment row
 
 #### Starting it
@@ -52,6 +62,6 @@ docker-compose up --build
 
 ```
 docker login libapps-admin.uncw.edu:8000
-docker build -t libapps-admin.uncw.edu:8000/randall-dev/new-titles .
-docker push libapps-admin.uncw.edu:8000/randall-dev/new-titles
+docker build --no-cache -t libapps-admin.uncw.edu:8000/randall-dev/carousels .
+docker push libapps-admin.uncw.edu:8000/randall-dev/carousels
 ```

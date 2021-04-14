@@ -5,7 +5,7 @@ const sierra = require('./queries')
 
 const CACHE = {}
 
-async function makeCarouselsCached(pageType, reqURL, next) {
+async function makeCarouselsCached (pageType, reqURL, next) {
   /*
     return early, if this reqURL has a cache and it's less than a day old.
     CACHE is like {reqURL: {'carousels': carousels, 'time': timeLastRun}, etc}.

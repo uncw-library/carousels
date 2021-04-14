@@ -6,11 +6,11 @@ The app returns an html pages with carousels of recently added books, videos, an
 
 Endpoints:
 
-   https://carousels.libapps.uncw.edu/new-books (new, just a demo page)
-   https://carousels.libapps.uncw.edu/new-titles  (was new-titles)
-   https://carousels.libapps.uncw.edu/popular-titles (was widgets)
-   https://carousels.libapps.uncw.edu/readbox (was readbox)
-   https://carousels.libapps.uncw.edu/uncw-authors (new, for uncw-authors page)
+    https://carousels.libapps.uncw.edu/new-books (new, just a demo page)
+    https://carousels.libapps.uncw.edu/new-titles  (was new-titles)
+    https://carousels.libapps.uncw.edu/popular-titles (was widgets)
+    https://carousels.libapps.uncw.edu/readbox (was readbox)
+    https://carousels.libapps.uncw.edu/uncw-authors (new, for uncw-authors page)
 
 Merges these app (obsoletes them): new-titles, readbox, widgets, uncw-authors
 

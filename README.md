@@ -70,12 +70,13 @@ docker push libapps-admin.uncw.edu:8000/randall-dev/carousels
 
 There are two example endoints.  /demopage and /demojson .  Like their names, one renders an html page and the other a json file.  Tracing the logic from:
   
-   routes.js -> carousels.js -> queries.js -> carousel.js -> routes.js -> views/demo-page-template.hbs
-   Each step along the way is modular. For example:
+routes.js -> carousels.js -> queries.js -> carousel.js -> routes.js -> views/demo-page-template.hbs
 
-   In routes.js, /demopage endpoing is set as a 'demopage' type, & also as demo-page-template.hbs template.
-   In carousels.js, makeCarousels(), 'demopage' type is set to have rows ['someData', 'popDVDs'].
-   In carousels.js, makeOneCarousel(), 'someData' row is set to query sierra.getSomeData().
-   In sierra.js, getSomeData() is set to some sql query.
+Each step along the way is modular. For example:
+
+    In routes.js, /demopage endpoing is set as a 'demopage' type, & also as demo-page-template.hbs template.
+    In carousels.js, makeCarousels(), 'demopage' type is set to have rows ['someData', 'popDVDs'].
+    In carousels.js, makeOneCarousel(), 'someData' row is set to query sierra.getSomeData().
+    In sierra.js, getSomeData() is set to some sql query.
    
-   That's the skeleton of the app.
+    That's the skeleton of the app.

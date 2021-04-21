@@ -565,6 +565,11 @@ async function getPopAudiobooks () {
   return await sierraPool.query(sql)
 }
 
+async function getSomeData () {
+  // example query.  let's skip the query & stub in some fake response
+  return {}
+}
+
 module.exports = {
   getNewBooks,
   getNewVideos,
@@ -587,5 +592,6 @@ module.exports = {
   getPopNew,
   getPopCDs,
   getPopDVDs,
-  getPopAudiobooks
+  getPopAudiobooks,
+  getSomeData
 }

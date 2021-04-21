@@ -53,6 +53,27 @@ router.get('/new-books', async (req, res, next) => {
   res.render('just-carousels-template', payload)
 })
 
+router.get('/demopage', async (req, res, next) => {
+  const pageType = 'demopage'
+  const reqUrl = req.url
+  const carousels = await makeCarouselsCached(pageType, reqUrl, next)
+  const payload = {
+    carousels
+  }
+  res.render('demo-page-template', payload)
+})
+
+router.get('/demojson', async (req, res, next) => {
+  const pageType = 'demojson'
+  const reqUrl = req.url
+  const carousels = await makeCarouselsCached(pageType, reqUrl, next)
+  const payload = {
+    something: `Here's something generic`,
+    carousels
+  }
+  res.json(payload)
+})
+
 router.get('/', async (req, res, next) => {
   // nothing at the root right now, so just return an error page by default
   res.render('error-template')

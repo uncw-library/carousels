@@ -17,8 +17,11 @@ async function makeCarouselsCached (pageType, reqURL, next) {
   if (!CACHE[reqURL]) {
     CACHE[reqURL] = {}
   }
-  CACHE[reqURL].carousles = carousels
-  CACHE[reqURL].time = Date.now()
+  // add item to the cache, if the item is non-empty
+  if (Object.entries(carousels).length) {
+    CACHE[reqURL].carousles = carousels
+    CACHE[reqURL].time = Date.now()
+  }
   return carousels
 }
 
@@ -43,7 +46,9 @@ async function makeCarousels (pageType, reqURL, next) {
     uncwAuthors: ['uncwAuthors'],
     newTitles: ['newBooks', 'newVideos', 'newMusic'],
     popularTitles: ['newNew'],
-    singleNewBooks: ['newBooks']
+    singleNewBooks: ['newBooks'],
+    demopage: ['someData', 'popDVDs'],
+    demojson: ['someData']
   }
   const carouselRows = pageTypeToCarouselRows[pageType]
   /*
@@ -160,11 +165,17 @@ async function makeOneCarousel (rowType, pageType, next) {
       query: async () => await sierra.getPopAudiobooks(),
       title: 'Newly Acquired Items',
       rssFeed: ''
+    },
+    someData: {
+      query: async () => await sierra.getSomeData(),
+      title: 'Title of some data',
+      rssFeed: ''
     }
   }
 
   const choice = rowChoices[rowType]
   const result = await choice.query().catch(next)
+  console.log(result)
   if (!result || !result.rows || !result.rows.length) {
     return [[]]
   }

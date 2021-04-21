@@ -3,6 +3,27 @@ const express = require('express')
 const router = express.Router()
 const { makeCarouselsCached } = require('./carousels')
 
+router.get('/demopage', async (req, res, next) => {
+  const pageType = 'demopage'
+  const reqUrl = req.url
+  const carousels = await makeCarouselsCached(pageType, reqUrl, next)
+  const payload = {
+    carousels
+  }
+  res.render('demo-page-template', payload)
+})
+
+router.get('/demojson', async (req, res, next) => {
+  const pageType = 'demojson'
+  const reqUrl = req.url
+  const carousels = await makeCarouselsCached(pageType, reqUrl, next)
+  const payload = {
+    something: `Here's something generic`,
+    carousels
+  }
+  res.json(payload)
+})
+
 router.get('/new-titles', async (req, res, next) => {
   const pageType = 'newTitles'
   const reqURL = req.url
@@ -51,27 +72,6 @@ router.get('/new-books', async (req, res, next) => {
     carousels
   }
   res.render('just-carousels-template', payload)
-})
-
-router.get('/demopage', async (req, res, next) => {
-  const pageType = 'demopage'
-  const reqUrl = req.url
-  const carousels = await makeCarouselsCached(pageType, reqUrl, next)
-  const payload = {
-    carousels
-  }
-  res.render('demo-page-template', payload)
-})
-
-router.get('/demojson', async (req, res, next) => {
-  const pageType = 'demojson'
-  const reqUrl = req.url
-  const carousels = await makeCarouselsCached(pageType, reqUrl, next)
-  const payload = {
-    something: `Here's something generic`,
-    carousels
-  }
-  res.json(payload)
 })
 
 router.get('/', async (req, res, next) => {

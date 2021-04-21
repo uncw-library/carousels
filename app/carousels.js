@@ -48,7 +48,7 @@ async function makeCarousels (pageType, reqURL, next) {
     popularTitles: ['newNew'],
     singleNewBooks: ['newBooks'],
     demopage: ['someData', 'popDVDs'],
-    demojson: ['someData']
+    demojson: ['someData', 'popAudiobooks']
   }
   const carouselRows = pageTypeToCarouselRows[pageType]
   /*
@@ -175,7 +175,6 @@ async function makeOneCarousel (rowType, pageType, next) {
 
   const choice = rowChoices[rowType]
   const result = await choice.query().catch(next)
-  console.log(result)
   if (!result || !result.rows || !result.rows.length) {
     return [[]]
   }

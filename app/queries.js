@@ -567,7 +567,48 @@ async function getPopAudiobooks () {
 
 async function getSomeData () {
   // example query.  let's skip the query & stub in some fake response
-  return {}
+  return {command: 'SELECT',
+    rowCount: 50,
+    oid: null,
+    rows: [
+      {
+        recordnum: 3386287,
+        title: 'Fake Title 1',
+        author: 'Fake Author 1',
+        location_code: 'wac'
+      },
+      {
+        recordnum: 3386286,
+        title: 'Fake Title 2',
+        author: 'Fake Author 2',
+        location_code: 'wac'
+      },
+      {
+        recordnum: 3386285,
+        title: 'Fake Title 3',
+        author: 'Fake Author 3',
+        location_code: 'wac'
+      },
+      {
+        recordnum: 3386284,
+        title: 'Fake Title 4',
+        author: 'Fake Author 4',
+        location_code: 'wac'
+      },
+      {
+        recordnum: 3384681,
+        title: 'Fake Title 5',
+        author: 'Fake Author 5',
+        location_code: 'wac'
+      },
+      {
+        recordnum: 2465718,
+        title: 'Fake Title 6',
+        author: 'Fake Author 6',
+        location_code: 'wac'
+      }
+    ]
+  }
 }
 
 module.exports = {

@@ -68,14 +68,15 @@ docker push libapps-admin.uncw.edu:8000/randall-dev/carousels
 
 ### To add new pages with new carousels
 
-There are two example endoints.  /demopage and /demojson
+There are two example endpoints.  /demopage and /demojson
 
-Like their names, one renders an html page and the other a json file.  
+One example renders an html page and the other a json file.  
 
 Tracing the logic from:
   
-    routes.js -> carousels.js -> queries.js -> carousel.js -> routes.js -> views/demo-page-template.hbs
-
+    routes.js--> carousels.js--> queries.js------------------->-| 
+    views/demo-page-template.hbs <--routes.js <--carousel.js <--|  
+ 
 Each step along the way is modular. For example:
 
     In routes.js, /demopage endpoing is set as a 'demopage' type, & also as demo-page-template.hbs template.

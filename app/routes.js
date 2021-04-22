@@ -75,8 +75,8 @@ router.get('/new-books', async (req, res, next) => {
 })
 
 router.get('/', async (req, res, next) => {
-  // nothing at the root right now, so just return an error page by default
-  res.render('error-template')
+  // app root is just a placeholder, not used by anything
+  res.render('approot-template')
 })
 
 module.exports = router

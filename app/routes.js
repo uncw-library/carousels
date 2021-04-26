@@ -18,7 +18,7 @@ router.get('/demojson', async (req, res, next) => {
   const reqUrl = req.url
   const carousels = await makeCarouselsCached(pageType, reqUrl, next)
   const payload = {
-    something: `Here's something generic`,
+    something: "Here's something generic",
     carousels
   }
   res.json(payload)

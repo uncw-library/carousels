@@ -1,3 +1,5 @@
+const fs = require('fs')
+const https = require('https')
 const R = require('ramda')
 const _ = require('lodash')
 
@@ -181,6 +183,7 @@ async function makeOneCarousel (rowType, pageType, next) {
   const bulkData = result.rows
   const shuffledData = _.shuffle(bulkData)
   const items = await cleanupItems(shuffledData, pageType, next)
+
   return {
     items: items,
     title: choice.title,
@@ -201,15 +204,20 @@ async function cleanupItems (bulkData, pageType, next) {
       const extrasResponse = await sierra.getExtras(item.recordnum)
       const bestItem = findBestItem(item, extrasResponse)
 
+      const isbn = parseISBN(isbnResponse, pageType)
+      const upc = parseUPC(upcResponse, pageType)
+      const image = await saveImage(isbn, upc)
+
       return {
         ...item,
-        isbn: parseISBN(isbnResponse, pageType),
-        UPC: parseUPC(upcResponse, pageType),
+        isbn: isbn,
+        UPC: upc,
         callNumber: parseCallNumber(bestItem, pageType),
         available: isAvailable(bestItem, pageType),
         resLocation: bestItem.location_name,
         titleFixed: shortenTitle(item),
-        authorFixed: shortenAuthor(item)
+        authorFixed: shortenAuthor(item),
+        image: image
       }
     })
   ).catch(next)
@@ -219,6 +227,45 @@ async function cleanupItems (bulkData, pageType, next) {
 }
 
 // Helper Functions
+
+async function saveImage (isbn, upc) {
+  const defaultImages = ['book1.jpg', 'book2.jpg', 'book3.jpg']
+  const randomDefault = defaultImages[Math.floor(Math.random() * defaultImages.length)]
+
+  const source = `https://www.syndetics.com/index.php?isbn=${isbn}&upc=${upc}/lc.gif&client=uncwh`
+  let filename, destpath
+  if (isbn.length) {
+    filename = `${isbn}.jpeg`
+    destpath = `/itemImages/${filename}`
+  } else if (upc.length) {
+    filename = `${upc}.jpeg`
+    destpath = `/itemImages/${filename}`
+  } else {
+    filename = randomDefault
+    destpath = `/images/${filename}`
+  }
+
+  // if file not exists, fetch the file
+  if (!fs.existsSync(`app/public/${destpath}`)) {
+    const file = fs.createWriteStream(`app/public${destpath}`)
+    https.get(source, response => {
+      const stream = response.pipe(file)
+      stream.on('finish', () => {
+        return true
+      })
+      stream.on('error', () => {
+        return false
+      })
+    })
+  }
+
+  // blank images from syndetics are small.  Replacing them with default image.
+  if (fs.statSync(`app/public/${destpath}`).size < 6211) {
+    filename = randomDefault
+    destpath = `/images/${filename}`
+  }
+  return destpath
+}
 
 function chunkItems (slimData, pageType) {
   let itemsPerSlide

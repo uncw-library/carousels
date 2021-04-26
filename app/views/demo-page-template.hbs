@@ -22,7 +22,7 @@
                                 {{#each this}}
                                 <!-- each item in the chunk, i.e., a book, cd, etc -->
                                 <div class="syn_skipthis col-auto book-div">
-                                    <img class="img img-thumbnail" onerror="this.src='/images/book{{onetwothree @index}}.jpg';" src="http://www.syndetics.com/index.php?isbn={{this.isbn}}&upc={{this.UPC}}/lc.gif&client=uncwh">
+                                    <img class="img img-thumbnail" src="{{this.image}}">
                                     <a href="#" data-toggle="modal" data-target="#itemInfoModal" onclick="updateModal('{{safeStr this.isbn}}', '{{safeStr this.UPC}}', '{{safeStr this.title}}', '{{safeStr this.titleFixed}}', '{{safeStr this.authorFixed}}', '{{safeStr this.callNumber}}', '{{safeStr this.resLocation}}', '/images/book{{onetwothree @index}}.jpg', '{{changeStr this.available}}', '{{this.recordnum}}')">
                                         <div class="overlay">
                                             <div class="text">

@@ -71,7 +71,7 @@ router.get('/new-books', async (req, res, next) => {
   const payload = {
     carousels
   }
-  res.render('just-carousels-template', payload)
+  res.render('no-modal-template', payload)
 })
 
 router.get('/', async (req, res, next) => {

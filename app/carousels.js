@@ -1,5 +1,7 @@
 const fs = require('fs')
-const https = require('https')
+const path = require('path')
+
+const axios = require('axios')
 const R = require('ramda')
 const _ = require('lodash')
 
@@ -228,44 +230,69 @@ async function cleanupItems (bulkData, pageType, next) {
 
 // Helper Functions
 
+async function downloadFile(fileUrl, outputPath) {
+  const writer = fs.createWriteStream(outputPath)
+  return axios({
+    method: 'get',
+    url: fileUrl,
+    responseType: 'stream',
+  }).then(response => {
+    return new Promise((resolve, reject) => {
+      response.data.pipe(writer);
+      let error = null;
+      writer.on('error', err => {
+        error = err;
+        writer.close();
+        reject(err);
+      })
+      writer.on('close', () => {
+        if (!error) {
+          resolve(true)
+        }
+      })
+    })
+  })
+}
+
 async function saveImage (isbn, upc) {
+  // the browser's / path is our container's /app/public/
+  // we have to send the browser a displaypath without /app/public/
+  let displaypath
+
+  // if file not fetchable, return a default image filepath
   const defaultImages = ['book1.jpg', 'book2.jpg', 'book3.jpg']
   const randomDefault = defaultImages[Math.floor(Math.random() * defaultImages.length)]
+  if (!isbn.length && !upc.length) {
+    displaypath = path.join('images', randomDefault)
+    return displaypath
+  }
 
-  const source = `https://www.syndetics.com/index.php?isbn=${isbn}&upc=${upc}/lc.gif&client=uncwh`
-  let filename, destpath
+  // naming a display path & a local server path based on its isbn or upc
   if (isbn.length) {
-    filename = `${isbn}.jpeg`
-    destpath = `/itemImages/${filename}`
+    displaypath = path.join('/', 'itemImages', `${isbn}.jpeg`)
   } else if (upc.length) {
-    filename = `${upc}.jpeg`
-    destpath = `/itemImages/${filename}`
-  } else {
-    filename = randomDefault
-    destpath = `/images/${filename}`
+    displaypath = path.join('/', 'itemImages', `${upc}.jpeg`)
+  }
+  const localpath = path.join('app', 'public', displaypath)
+
+  // if file already fetched, return its filepath
+  if (fs.existsSync(localpath)) {
+    return displaypath
   }
 
   // if file not exists, fetch the file
-  if (!fs.existsSync(`app/public/${destpath}`)) {
-    const file = fs.createWriteStream(`app/public${destpath}`)
-    https.get(source, response => {
-      const stream = response.pipe(file)
-      stream.on('finish', () => {
-        return true
-      })
-      stream.on('error', () => {
-        return false
-      })
+  const fileUrl = `https://www.syndetics.com/index.php?isbn=${isbn}&upc=${upc}/lc.gif&client=uncwh`
+  return await downloadFile(fileUrl, localpath)
+    .then((res) => {
+      // blank images from syndetics are small.  Replacing them with default image.
+      if (fs.statSync(localpath).size < 6211) {
+        displaypath = path.join('/', 'images', randomDefault)
+        return displaypath
+      }
+      return displaypath
     })
-  }
-
-  // blank images from syndetics are small.  Replacing them with default image.
-  if (fs.statSync(`app/public/${destpath}`).size < 6211) {
-    filename = randomDefault
-    destpath = `/images/${filename}`
-  }
-  return destpath
 }
+
 
 function chunkItems (slimData, pageType) {
   let itemsPerSlide

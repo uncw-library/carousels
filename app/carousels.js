@@ -263,7 +263,7 @@ async function saveImage (isbn, upc) {
   const defaultImages = ['book1.jpg', 'book2.jpg', 'book3.jpg']
   const randomDefault = defaultImages[Math.floor(Math.random() * defaultImages.length)]
   if (!isbn.length && !upc.length) {
-    displaypath = path.join('images', randomDefault)
+    displaypath = path.join('/', 'images', randomDefault)
     return displaypath
   }
 

@@ -1,3 +1,7 @@
+const fs = require('fs')
+const path = require('path')
+
+const axios = require('axios')
 const R = require('ramda')
 const _ = require('lodash')
 
@@ -181,6 +185,7 @@ async function makeOneCarousel (rowType, pageType, next) {
   const bulkData = result.rows
   const shuffledData = _.shuffle(bulkData)
   const items = await cleanupItems(shuffledData, pageType, next)
+
   return {
     items: items,
     title: choice.title,
@@ -201,15 +206,20 @@ async function cleanupItems (bulkData, pageType, next) {
       const extrasResponse = await sierra.getExtras(item.recordnum)
       const bestItem = findBestItem(item, extrasResponse)
 
+      const isbn = parseISBN(isbnResponse, pageType)
+      const upc = parseUPC(upcResponse, pageType)
+      const image = await saveImage(isbn, upc)
+
       return {
         ...item,
-        isbn: parseISBN(isbnResponse, pageType),
-        UPC: parseUPC(upcResponse, pageType),
+        isbn: isbn,
+        UPC: upc,
         callNumber: parseCallNumber(bestItem, pageType),
         available: isAvailable(bestItem, pageType),
         resLocation: bestItem.location_name,
         titleFixed: shortenTitle(item),
-        authorFixed: shortenAuthor(item)
+        authorFixed: shortenAuthor(item),
+        image: image
       }
     })
   ).catch(next)
@@ -219,6 +229,69 @@ async function cleanupItems (bulkData, pageType, next) {
 }
 
 // Helper Functions
+
+async function downloadFile (fileUrl, outputPath) {
+  const writer = fs.createWriteStream(outputPath)
+  return axios({
+    method: 'get',
+    url: fileUrl,
+    responseType: 'stream'
+  }).then(response => {
+    return new Promise((resolve, reject) => {
+      response.data.pipe(writer)
+      let error = null
+      writer.on('error', err => {
+        error = err
+        writer.close()
+        reject(err)
+      })
+      writer.on('close', () => {
+        if (!error) {
+          resolve(true)
+        }
+      })
+    })
+  })
+}
+
+async function saveImage (isbn, upc) {
+  // the browser's / path is our container's /app/public/
+  // we have to send the browser a displaypath without /app/public/
+  let displaypath
+
+  // if file not fetchable, return a default image filepath
+  const defaultImages = ['book1.jpg', 'book2.jpg', 'book3.jpg']
+  const randomDefault = defaultImages[Math.floor(Math.random() * defaultImages.length)]
+  if (!isbn.length && !upc.length) {
+    displaypath = path.join('/', 'images', randomDefault)
+    return displaypath
+  }
+
+  // naming a display path & a local server path based on its isbn or upc
+  if (isbn.length) {
+    displaypath = path.join('/', 'itemImages', `${isbn}.jpeg`)
+  } else if (upc.length) {
+    displaypath = path.join('/', 'itemImages', `${upc}.jpeg`)
+  }
+  const localpath = path.join('app', 'public', displaypath)
+
+  // if file already fetched, return its filepath
+  if (fs.existsSync(localpath)) {
+    return displaypath
+  }
+
+  // if file not exists, fetch the file
+  const fileUrl = `https://www.syndetics.com/index.php?isbn=${isbn}&upc=${upc}/lc.gif&client=uncwh`
+  return await downloadFile(fileUrl, localpath)
+    .then((res) => {
+      // blank images from syndetics are small.  Replacing them with default image.
+      if (fs.statSync(localpath).size < 6211) {
+        displaypath = path.join('/', 'images', randomDefault)
+        return displaypath
+      }
+      return displaypath
+    })
+}
 
 function chunkItems (slimData, pageType) {
   let itemsPerSlide

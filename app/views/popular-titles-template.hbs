@@ -1,8 +1,4 @@
 
-<!--The following script call Syndetics content-->
-<script src="https://secure.syndetics.com/widget.php?id=uncwh&css=css/styles_syndetics.css" type="text/javascript">
-</script>
-
 {{#each carousels.rows}}
     <!-- Each carousel row uses this same template -->
     <div class="" stl>
@@ -13,7 +9,7 @@
                 <!-- each item in the chunk, i.e., a book, cd, etc -->
                 <div class="" style="width:20%;display:inline-block;">
                     <a target="_blank" href="http://libcat.uncw.edu/record=b{{this.recordnum}}~S4">
-                        <img class="img" width="100%" src="http://www.syndetics.com/index.php?isbn={{this.isbn}}/lc.gif&client=uncwh" style="height:50vh;" onerror="style='display:none;'">
+                        <img class="img" width="100%" src="{{this.image}}" style="height:50vh;" onerror="style='display:none;'">
                     </a>
                 </div>
             {{/each}}

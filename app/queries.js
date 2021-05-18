@@ -567,7 +567,8 @@ async function getPopAudiobooks () {
 
 async function getSomeData () {
   // example query.  let's skip the query & stub in some fake response
-  return {command: 'SELECT',
+  return {
+    command: 'SELECT',
     rowCount: 50,
     oid: null,
     rows: [

@@ -230,20 +230,20 @@ async function cleanupItems (bulkData, pageType, next) {
 
 // Helper Functions
 
-async function downloadFile(fileUrl, outputPath) {
+async function downloadFile (fileUrl, outputPath) {
   const writer = fs.createWriteStream(outputPath)
   return axios({
     method: 'get',
     url: fileUrl,
-    responseType: 'stream',
+    responseType: 'stream'
   }).then(response => {
     return new Promise((resolve, reject) => {
-      response.data.pipe(writer);
-      let error = null;
+      response.data.pipe(writer)
+      let error = null
       writer.on('error', err => {
-        error = err;
-        writer.close();
-        reject(err);
+        error = err
+        writer.close()
+        reject(err)
       })
       writer.on('close', () => {
         if (!error) {
@@ -292,7 +292,6 @@ async function saveImage (isbn, upc) {
       return displaypath
     })
 }
-
 
 function chunkItems (slimData, pageType) {
   let itemsPerSlide

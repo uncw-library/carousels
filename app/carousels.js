@@ -277,6 +277,11 @@ async function saveImage (isbn, upc) {
 
   // if file already fetched, return its filepath
   if (fs.existsSync(localpath)) {
+    // blank images from syndetics are small.  Replacing them with default image.
+    if (fs.statSync(localpath).size < 6211) {
+      displaypath = path.join('/', 'images', randomDefault)
+      return displaypath
+    }
     return displaypath
   }
 

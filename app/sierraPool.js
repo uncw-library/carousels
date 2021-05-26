@@ -10,9 +10,10 @@ const pool = new Pool({
   ssl: {
     rejectUnauthorized: false
   },
-  max: 5,
+  max: 3,
   idleTimeoutMillis: 30000,
-  connectionTimeoutMillis: 36000
+  connectionTimeoutMillis: 36000,
+  application_name: 'carousels',
 })
 
 module.exports = {

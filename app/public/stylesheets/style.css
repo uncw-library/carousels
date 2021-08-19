@@ -25,6 +25,11 @@ a {
   margin-bottom:10px;
 }
 
+#authors-header {
+  background-color:#006c67;
+  margin-bottom:10px;
+}
+
 .book-row, .location-filter {
   margin: .5rem;
 }

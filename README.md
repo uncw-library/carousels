@@ -54,7 +54,7 @@ docker-compose up --build
 #### Interact with it
 
 ```
-"http://localhost:8009/"
+"http://localhost:3000"
 ```
 
 #### To run tests on dev box

@@ -1,6 +1,8 @@
 ## Carousels
 
 This repo builds an Express app.  Currently it is linked on the drupal7 mainsite frontpage, as well as on a freestanding kiosk.
+The kiosks are \~1080x1897px.
+
 
 The app returns html or json; with carousels of recently added books, videos, and music.
 

@@ -94,6 +94,16 @@ router.get('/readbox*', async (req, res, next) => {
   res.render('readbox-template', payload)
 })
 
+router.get('/touchkiosk', async (req, res, next) => {
+  const pageType = 'newTitles'
+  const reqURL = req.url
+  const carousels = await makeCarouselsCached(pageType, reqURL, next)
+  const payload = {
+    carousels
+  }
+  res.render('touchkiosk-template', payload)
+})
+
 router.get('/uncw-authors', async (req, res, next) => {
   const pageType = 'uncwAuthors'
   const reqURL = req.url

@@ -31,7 +31,7 @@
                 <!-- each item in the chunk, i.e., a book, cd, etc -->
                 <div class="syn_skipthis col-auto book-div">
                   <img class="img img-thumbnail" src="{{this.image}}">
-                  <a href="#" data-toggle="modal" data-target="#itemInfoModal" onclick="updateModal('{{safeStr this.isbn}}', '{{safeStr this.UPC}}', '{{safeStr this.title}}', '{{safeStr this.titleFixed}}', '{{safeStr this.authorFixed}}', '{{safeStr this.callNumber}}', '{{safeStr this.resLocation}}', '/images/book{{onetwothree @index}}.jpg', '{{changeStr this.available}}', '{{this.recordnum}}', '{{this.image}}')">
+                  <a href="#" data-toggle="modal" data-target="#itemInfoModal" onclick="updateModal('{{safeStr this.title}}', '{{safeStr this.titleFixed}}', '{{safeStr this.authorFixed}}', '{{safeStr this.callNumber}}', '{{safeStr this.resLocation}}', '{{changeStr this.available}}', '{{this.recordnum}}', '{{this.image}}', '/images/book{{onetwothree @index}}.jpg')">
                     <div class="overlay">
                       <div class="text">
                         {{this.titleFixed}} - {{this.authorFixed}}
@@ -106,7 +106,7 @@
   }, 5000);
 
 
-  function updateModal(isbn, UPC, title, titleFixed,  author, callNumber, location, errorImage, available, recordnum, image) {
+  function updateModal(title, titleFixed,  author, callNumber, location, available, recordnum, image, errorImage) {
     const formattedCallNumber = callNumber.toUpperCase().replace(/\s/g, '');
     const formattedLocation = location.replace(/[']/gi, '\\\'').replace(/["]/gi, '\\"');
     const formattedTitle = title.replace(/[']/gi, '\\\'').replace(/["]/gi, '\\"');

@@ -62,11 +62,15 @@ async function makeCarousels (pageType, reqURL, next) {
   const rows = await Promise.all(carouselRows.map(rowType => makeOneCarousel(rowType, pageType, next)))
   const showFindIt = (pageType !== 'ebooks' && pageType !== 'evideos')
   const noPop = (pageType === 'ebooks' || pageType === 'evideos')
+  const showCatalogLink = (pageType !== 'uncwAuthors')
+  const showSendAsText = true
   const carousels = {
     rows,
     pageType,
     showFindIt,
-    noPop
+    noPop,
+    showCatalogLink,
+    showSendAsText
   }
   return carousels
 }

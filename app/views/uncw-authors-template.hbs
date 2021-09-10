@@ -32,7 +32,7 @@
                     <!-- each item in the chunk, i.e., a book, cd, etc -->
                     <div class="syn_skipthis col-auto book-div">
                       <img class="img img-thumbnail" src="{{item.image}}">
-                      <a href="#" data-toggle="modal" data-target="#itemInfoModal" onclick="updateModal('{{safeStr item.title}}', '{{safeStr item.titleFixed}}', '{{safeStr item.authorFixed}}', '{{safeStr item.callNumber}}', '{{safeStr item.resLocation}}', '{{changeStr item.available}}', '{{item.recordnum}}', '{{item.image}}', '/images/book{{onetwothree @index}}.jpg', {{@root.carousels.showFindIt}}, '{{@root.carousels.showCatalogLink}}', '{{@root.carousels.showSendAsText}}')">
+                      <a href="#" data-toggle="modal" data-target="#itemInfoModal" onclick="updateModal('{{safeStr item.title}}', '{{safeStr item.titleFixed}}', '{{safeStr item.authorFixed}}', '{{safeStr item.callNumber}}', '{{safeStr item.resLocation}}', '{{changeStr item.available}}', '{{item.recordnum}}', '{{item.image}}', '/images/book{{onetwothree @index}}.jpg', {{@root.carousels.showFindIt}}, {{@root.carousels.showCatalogLink}}, {{@root.carousels.showSendAsText}})">
                         <div class="overlay">
                           <div class="text">
                             {{item.titleFixed}} - {{item.authorFixed}}
@@ -118,15 +118,6 @@
     const formattedTitle = title.replace(/[']/gi, '\\\'').replace(/["]/gi, '\\"');
     const findItUrl = `https://findit.libapps.uncw.edu/stacks?callNumber=${formattedCallNumber}&collection=${formattedLocation}`
     const sendTextUrl = `https://twilio.libapps.uncw.edu/sendCallNumber?bookLocation=${formattedLocation}&bookCallNumber=${formattedCallNumber}&bookTitle=${formattedTitle}`
-
-    // temp hack, until backend sends "showCatalogLink" and "showSendAsText"
-    if (showCatalogLink === '') {
-      showCatalogLink = true;
-    };
-    if (showSendAsText === '') {
-      showSendAsText = true;
-    };
-    // end temp hack
 
     $('#sendAsTextIframe').html('');
     $('#findItIframe').html('');

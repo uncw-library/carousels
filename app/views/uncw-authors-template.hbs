@@ -6,42 +6,43 @@
   </div>
 </header>
 
-{{#each carousels.rows}}
-  <!-- Each carousel row uses this same template -->
+<!-- creating all the carousels -->
+{{#each carousels.rows as |carousel carouselId|}}
+  <!-- creating one carousel row -->
   <div class="row mb-5 mt-3 book-row">
     <div class="card book-card">
       <div class="card-body">
-        <!-- row title elem -->
+        <!-- creating the row header elem -->
         <h5 class="card-title">
-          {{this.title}}
-          {{#if this.rssFeed}}
-          <a href="{{this.rssFeed}}" target="_blank" title="Subscribe to Library {{this.title}} Feed">
-            <img src="https://library.uncw.edu/misc/feed.png" width="16" height="16" alt="Subscribe to Library {{this.title}} Feed" />
-          </a>
+          {{carousel.title}}
+          {{#if carousel.rssFeed}}
+            <a href="{{carousel.rssFeed}}" target="_blank" title="Subscribe to Library {{carousel.title}} Feed">
+              <img src="https://library.uncw.edu/misc/feed.png" width="16" height="16" alt="Subscribe to Library {{carousel.title}} Feed" />
+            </a>
           {{/if}}
         </h5>
-        <!-- carousel items -->
+        <!-- creating the carousel items -->
         <div id="carousel-slide-{{increment @index}}" class="carousel slide" data-ride="carousel">
           <div class="carousel-inner">
-            {{#each this.items}}
-            <!-- each chunk of 5 items, i.e, 5 books, cds, etc -->
-            <div class="carousel-item {{#unless @index}}active{{/unless}}">
-              <div class="row justify-content-center">
-                {{#each this}}
-                <!-- each item in the chunk, i.e., a book, cd, etc -->
-                <div class="syn_skipthis col-auto book-div">
-                  <img class="img img-thumbnail" src="{{this.image}}">
-                  <a href="#" data-toggle="modal" data-target="#itemInfoModal" onclick="updateModal('{{safeStr this.title}}', '{{safeStr this.titleFixed}}', '{{safeStr this.authorFixed}}', '{{safeStr this.callNumber}}', '{{safeStr this.resLocation}}', '{{changeStr this.available}}', '{{this.recordnum}}', '{{this.image}}', '/images/book{{onetwothree @index}}.jpg')">
-                    <div class="overlay">
-                      <div class="text">
-                        {{this.titleFixed}} - {{this.authorFixed}}
-                      </div>
+            {{#each carousel.items as |chunk chunkId|}}
+              <!-- each chunk of 5 items, i.e, 5 books, cds, etc -->
+              <div class="carousel-item {{#unless @index}}active{{/unless}}">
+                <div class="row justify-content-center">
+                  {{#each chunk as |item itemId|}}
+                    <!-- each item in the chunk, i.e., a book, cd, etc -->
+                    <div class="syn_skipthis col-auto book-div">
+                      <img class="img img-thumbnail" src="{{item.image}}">
+                      <a href="#" data-toggle="modal" data-target="#itemInfoModal" onclick="updateModal('{{safeStr item.title}}', '{{safeStr item.titleFixed}}', '{{safeStr item.authorFixed}}', '{{safeStr item.callNumber}}', '{{safeStr item.resLocation}}', '{{changeStr item.available}}', '{{item.recordnum}}', '{{item.image}}', '/images/book{{onetwothree @index}}.jpg', {{@root.carousels.showFindIt}}, '{{@root.carousels.showCatalogLink}}', '{{@root.carousels.showSendAsText}}')">
+                        <div class="overlay">
+                          <div class="text">
+                            {{item.titleFixed}} - {{item.authorFixed}}
+                          </div>
+                        </div>
+                      </a>
                     </div>
-                  </a>
+                  {{/each}}
                 </div>
-                {{/each}}
               </div>
-            </div>
             {{/each}}
           </div>
           <a class="carousel-control-prev" href="#carousel-slide-{{increment @index}}" role="button" data-slide="prev">
@@ -62,16 +63,17 @@
   </div>
 {{/each}}
 
+<!-- randall rotations imagebox -->
 <div style="text-align:center;">
   <iframe src="https://randall-rotations.libapps-staff.uncw.edu/CircDesk/rotation" width="740px" height="1300px" style="border:none;" scrolling="no"></iframe>
 </div>
 
-<!-- Modal -->
+<!-- modal -->
 <div class="modal fade" id="itemInfoModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="modalTitle">Title</h5>
+        <h5 class="modal-title" id="modalTitle"></h5>
         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
           <span aria-hidden="true">&times;</span>
         </button>
@@ -81,7 +83,11 @@
       <div id="modalBodyImage" class="modal-body"></div>
       <div id="modalBodyInfo" class="modal-body" style="padding:.3rem;"></div>
       <div id="modalBodyDescription" class="modal-body"></div>
-      <div id="sendAsText" class="modal-body"></div>
+      <div id="modalRefreshers" class="row text-center">
+        <div id="sendAsText" class="col-md-4 col-sm-12"></div>
+        <div id="catalogLink" class="col-md-4 col-sm-12"></div>
+        <div id="findIt" class="col-md-4 col-sm-12"></div>
+      </div>
       <div id="openCatalog" class="modal-body"></div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
@@ -106,15 +112,30 @@
   }, 5000);
 
 
-  function updateModal(title, titleFixed,  author, callNumber, location, available, recordnum, image, errorImage) {
+  function updateModal(title, titleFixed,  author, callNumber, location, available, recordnum, image, errorImage, showFindIt, showCatalogLink, showSendAsText) {
     const formattedCallNumber = callNumber.toUpperCase().replace(/\s/g, '');
     const formattedLocation = location.replace(/[']/gi, '\\\'').replace(/["]/gi, '\\"');
     const formattedTitle = title.replace(/[']/gi, '\\\'').replace(/["]/gi, '\\"');
     const findItUrl = `https://findit.libapps.uncw.edu/stacks?callNumber=${formattedCallNumber}&collection=${formattedLocation}`
     const sendTextUrl = `https://twilio.libapps.uncw.edu/sendCallNumber?bookLocation=${formattedLocation}&bookCallNumber=${formattedCallNumber}&bookTitle=${formattedTitle}`
 
+    // temp hack, until backend sends "showCatalogLink" and "showSendAsText"
+    if (showCatalogLink === '') {
+      showCatalogLink = true;
+    };
+    if (showSendAsText === '') {
+      showSendAsText = true;
+    };
+    // end temp hack
+
     $('#sendAsTextIframe').html('');
     $('#findItIframe').html('');
+    $('#modalBodyImage').html('');
+    $('#modalBodyInfo').html('');
+    $('#modalBodyDescription').html('');
+    $('#sendAsText').html('');
+    $('#catalogLink').html('');
+    $('#findIt').html('');
     
     $('#modalTitle').html(`${title} - ${author}`);
     $('#modalBodyImage').html(`
@@ -143,41 +164,60 @@
         </div>
       `);
     }
-    
-    $('#sendAsText').html(` 
-      <img style="margin:10px;" onclick="sendAsText('${sendTextUrl}');" src="/images/sendAsTxt.gif"/>
-      <a target="blank" href="https://libcat.uncw.edu/record=b${recordnum}">
-      <img src="/images/catalogRecord.gif"/>
-      </a>
-      <img style="margin:10px;" onclick="findIt('${findItUrl}', '${formattedCallNumber}');" src="/images/FindIT2-Button.png"/>
-    `)
+    if (showSendAsText) {
+      $('#sendAsText').html(` 
+        <img style="margin:10px;" onclick="sendAsText('${sendTextUrl}');" src="/images/sendAsTxt.gif"/>
+      `);
+    };
+    if (showCatalogLink) {
+      $('#catalogLink').html(`
+        <a target="blank" href="https://libcat.uncw.edu/record=b${recordnum}">
+          <img style="margin:10px;" src="/images/catalogRecord.gif"/>
+        </a>
+      `);
+    };
+    if (showFindIt) {
+      $('#findIt').html(`
+        <img style="margin:10px;" onclick="findIt('${findItUrl}', '${formattedCallNumber}');" src="/images/FindIT2-Button.png"/>
+      `);
+    };
+   
     $('#modalBodyDescription').html(`<p><div id="syn_summary"></div></p>`)
     
     syn_get_plus();
   }
 
   function sendAsText(url) {
-    $('#sendAsTextIframe').html(`
-        <iframe src="${url}" width="450" height="550" style="margin-bottom:-90px;" frameborder="0"/>
-    `);
+    $('#sendAsTextIframe').html('');
     $('#findItIframe').html('');
     $('#modalBodyImage').html('');
     $('#modalBodyInfo').html('');
     $('#modalBodyDescription').html('');
     $('#sendAsText').html('');
+    $('#catalogLink').html('');
+    $('#findIt').html('');
+
+    $('#sendAsTextIframe').html(`
+        <iframe src="${url}" width="450" height="550" style="margin-bottom:-90px;" frameborder="0"/>
+    `);
   }
 
   function findIt(url, callNumber) {
+    $('#sendAsTextIframe').html('');
+    $('#findItIframe').html('');
+    $('#modalBodyImage').html('');
+    $('#modalBodyInfo').html('');
+    $('#modalBodyDescription').html('');
+    $('#sendAsText').html('');
+    $('#catalogLink').html('');
+    $('#findIt').html('');
+    
     $('#findItIframe').html(` 
       <div style="padding:20px;"><strong>Call Number</strong>: ${callNumber}</div>
       <br/>
       <iframe src="${url}" width="600" height="880" style="margin-bottom:-90px;" frameborder="0"/>
     `);
-    $('#sendAsTextIframe').html('');
-    $('#modalBodyImage').html('');
-    $('#modalBodyInfo').html('');
-    $('#modalBodyDescription').html('');
-    $('#sendAsText').html('');
+
   }
 
 </script>

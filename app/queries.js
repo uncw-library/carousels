@@ -152,8 +152,8 @@ async function getNewMusic () {
 async function getUNCWAuthors () {
   const sql = `
     SELECT bib_view.record_num as recordnum,
-      best_title_norm as title,
-      best_author_norm as author
+      best_title as title,
+      best_author as author
     FROM sierra_view.bib_view
     LEFT JOIN sierra_view.varfield_view
       ON sierra_view.varfield_view.record_id = sierra_view.bib_view.id

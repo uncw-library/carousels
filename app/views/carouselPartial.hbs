@@ -1,0 +1,60 @@
+<!-- carousels -->
+
+{{#each carousels.rows as |carousel carouselId|}}
+  <!-- creating one carousel row -->
+  <div class="row mb-5 mt-3 book-row">
+    <div class="card book-card">
+      <div class="card-body">
+        <!-- creating the row header elem -->
+        <h5 class="card-title">
+          {{carousel.title}}
+          {{!-- if showRSS for this page && if this one carousel has a rssFeed data --}}
+          {{#if @root.carousels.showRSS }}{{#if carousel.rssFeed}}
+            <a href="{{carousel.rssFeed}}" target="_blank" title="Subscribe to Library {{carousel.title}} Feed">
+              <img src="https://library.uncw.edu/misc/feed.png" width="16" height="16" alt="Subscribe to Library {{carousel.title}} Feed" />
+            </a>
+          {{/if}}{{/if}}
+        </h5>
+        <!-- creating the carousel items -->
+        <div id="carousel-slide-{{increment @index}}" class="carousel slide" data-ride="carousel">
+          <div class="carousel-inner">
+            {{#each carousel.items as |chunk chunkId|}}
+              <!-- each chunk of 5 items, i.e, 5 books, cds, etc -->
+              <div class="carousel-item {{#unless @index}}active{{/unless}}">
+                <div class="row justify-content-center">
+                  {{#each chunk as |item itemId|}}
+                    <!-- each item in the chunk, i.e., a book, cd, etc -->
+                    <div class="syn_skipthis col-auto book-div">
+                      <img class="img img-thumbnail" src="{{item.image}}">
+                      <a href="#" data-toggle="modal" data-target="#itemInfoModal" onclick="updateModal('{{safeStr item.title}}', '{{safeStr item.titleFixed}}', '{{safeStr item.authorFixed}}', '{{safeStr item.callNumber}}', '{{safeStr item.resLocation}}', '{{changeStr item.available}}', '{{item.recordnum}}', '{{item.image}}', '/images/book{{onetwothree @index}}.jpg', {{@root.carousels.showFindIt}}, {{@root.carousels.showCatalogLink}}, {{@root.carousels.showSendAsText}})">
+                        <div class="overlay">
+                          <div class="text">
+                            {{item.titleFixed}} - {{item.authorFixed}}
+                          </div>
+                        </div>
+                      </a>
+                    </div>
+                  {{/each}}
+                </div>
+              </div>
+            {{/each}}
+          </div>
+          <a class="carousel-control-prev" href="#carousel-slide-{{increment @index}}" role="button" data-slide="prev">
+            <span style="color:Black;">
+              <i class="fas fa-arrow-circle-left fa-3x"></i>
+            </span>
+            <span class="sr-only">Previous</span>
+          </a>
+          <a class="carousel-control-next" href="#carousel-slide-{{increment @index}}" role="button" data-slide="next">
+            <span style="color:Black;">
+              <span class="fas fa-arrow-circle-right fa-3x"></span>
+            </span>
+            <span class="sr-only">Next</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+{{/each}}
+
+<script type="text/javascript" src="/js/carouselLoop.js"></script>

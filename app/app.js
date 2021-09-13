@@ -47,7 +47,12 @@ app.use((err, req, res, next) => {
   res.render('error-template')
 })
 
-// Handlebars custom plugins
+// Handlebars partial templates
+Handlebars.registerPartials(path.join(__dirname, 'views'))
+
+/*
+  Handlebars custom plugins
+*/
 
 // used to return a number for the blank book cover images
 Handlebars.registerHelper('onetwothree', index => (index % 3) + 1)

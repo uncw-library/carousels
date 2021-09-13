@@ -95,17 +95,17 @@ router.get('/readbox*', async (req, res, next) => {
 })
 
 router.get('/touchkiosk', async (req, res, next) => {
-  const pageType = 'newTitles'
+  const pageType = 'touchkiosk'
   const reqURL = req.url
   const carousels = await makeCarouselsCached(pageType, reqURL, next)
   const payload = {
     carousels
   }
-  res.render('touchkiosk-template', payload)
+  res.render('just-carousels-template', payload)
 })
 
 router.get('/touchkiosk-json', async (req, res, next) => {
-  const pageType = 'newTitles'
+  const pageType = 'touchkiosk'
   const reqURL = req.url
   const carousels = await makeCarouselsCached(pageType, reqURL, next)
   const payload = {

@@ -52,7 +52,8 @@ async function makeCarousels (pageType, reqURL, next) {
     popularTitles: ['newNew'],
     singleNewBooks: ['newBooks'],
     demopage: ['someData', 'popDVDs'],
-    demojson: ['someData', 'popAudiobooks']
+    demojson: ['someData', 'popAudiobooks'],
+    touchkiosk: ['newBooks', 'newVideos', 'newMusic']
   }
   const carouselRows = pageTypeToCarouselRows[pageType]
   /*
@@ -60,17 +61,22 @@ async function makeCarousels (pageType, reqURL, next) {
     It waits until every makeOneCarousel() is done before allowing anything to use 'rows'.
   */
   const rows = await Promise.all(carouselRows.map(rowType => makeOneCarousel(rowType, pageType, next)))
+
+  // global setting for this page.  i.e., we want 'touchkiosk' to not show RSS feed, etc.
   const showFindIt = (pageType !== 'ebooks' && pageType !== 'evideos')
   const noPop = (pageType === 'ebooks' || pageType === 'evideos')
-  const showCatalogLink = (pageType !== 'uncwAuthors')
+  const showCatalogLink = (pageType !== 'uncwAuthors' && pageType !== 'touchkiosk')
   const showSendAsText = true
+  const showRSS = (pageType !== 'touchkiosk')
+
   const carousels = {
     rows,
     pageType,
     showFindIt,
     noPop,
     showCatalogLink,
-    showSendAsText
+    showSendAsText,
+    showRSS
   }
   return carousels
 }
@@ -232,7 +238,9 @@ async function cleanupItems (bulkData, pageType, next) {
   return chunked
 }
 
-// Helper Functions
+/*
+  Helper Functions
+*/
 
 async function downloadFile (fileUrl, outputPath) {
   const writer = fs.createWriteStream(outputPath)

@@ -13,7 +13,7 @@ const pool = new Pool({
   max: 3,
   idleTimeoutMillis: 30000,
   connectionTimeoutMillis: 36000,
-  application_name: 'carousels',
+  application_name: 'carousels'
 })
 
 module.exports = {

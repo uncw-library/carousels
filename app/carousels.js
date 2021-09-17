@@ -384,6 +384,13 @@ function findBestItem (item, extrasResponse) {
       return clump
     }
   }
+  // if that fails, grab the first available book that is in General Collection
+  for (const clump of extras) {
+    if (clump.is_available_at_library === true && clump.location_name === 'General Collection') {
+      return clump
+    }
+  }
+
   // if that fails, grab the first book that is available,
   for (const clump of extras) {
     if (clump.is_available_at_library === true) {

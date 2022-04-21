@@ -262,7 +262,7 @@ async function getNewNew () {
       bcode3 = '-'
       AND location_code = 'whi'
       AND item_status_code NOT IN ('p', '$', 'i', 'u', 'z', 'd', 'm', 'v', 'r')
-      AND item_view.record_creation_date_gmt >= (current_date - 180)
+      AND item_view.record_creation_date_gmt >= (current_date - 356)
       AND copy_num = '1'
     LIMIT 100
   `

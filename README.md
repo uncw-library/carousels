@@ -28,7 +28,7 @@ Merges these app (obsoletes them): new-titles, readbox, widgets, uncw-authors
 
 ### To build a dev box
 
-  - Make a file at "new-title/.env" with contents:
+  - Make a file at "./carousels/.env" with contents:
 
 ```
 SIERRA_USER={{your sierra username}}

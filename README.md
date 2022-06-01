@@ -74,7 +74,7 @@ docker-compose up --build
 
 ```
 docker login libapps-admin.uncw.edu:8000
-docker build --no-cache -t libapps-admin.uncw.edu:8000/randall-dev/carousels .
+docker build --no-cache --platform linux/x86_64/v8 -t libapps-admin.uncw.edu:8000/randall-dev/carousels .
 docker push libapps-admin.uncw.edu:8000/randall-dev/carousels
 ```
 

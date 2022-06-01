@@ -246,25 +246,48 @@ async function getNewJuv () {
 
 async function getNewNew () {
   const sql = `
-    SELECT DISTINCT 
-      bib_view.record_num as recordnum,
-      best_title as title,
-      best_author as author,
-      location_code
-    FROM sierra_view.bib_view
-    LEFT JOIN sierra_view.bib_record_property
-      ON sierra_view.bib_view.id = sierra_view.bib_record_property.bib_record_id
-    LEFT JOIN sierra_view.bib_record_item_record_link
-      ON sierra_view.bib_view.id = sierra_view.bib_record_item_record_link.bib_record_id
-    LEFT JOIN sierra_view.item_view
-      ON sierra_view.bib_record_item_record_link.item_record_id = sierra_view.item_view.id
-    WHERE 
-      bcode3 = '-'
-      AND location_code = 'whi'
-      AND item_status_code NOT IN ('p', '$', 'i', 'u', 'z', 'd', 'm', 'v', 'r')
-      AND item_view.record_creation_date_gmt >= (current_date - 356)
-      AND copy_num = '1'
-    LIMIT 100
+  ( SELECT DISTINCT 
+    bib_view.record_num as recordnum,
+    best_title as title,
+    best_author as author,
+    location_code as location_code,
+ item_view.record_creation_date_gmt as date
+  FROM sierra_view.bib_view
+  LEFT JOIN sierra_view.bib_record_property
+    ON sierra_view.bib_view.id = sierra_view.bib_record_property.bib_record_id
+  LEFT JOIN sierra_view.bib_record_item_record_link
+    ON sierra_view.bib_view.id = sierra_view.bib_record_item_record_link.bib_record_id
+  LEFT JOIN sierra_view.item_view
+    ON sierra_view.bib_record_item_record_link.item_record_id = sierra_view.item_view.id
+  WHERE 
+    bcode3 = '-'
+    AND (location_code = 'whi' or location_code = 'wgi')
+    AND item_status_code NOT IN ('p', '$', 'i', 'u', 'z', 'd', 'm', 'v', 'r')
+    AND item_view.record_creation_date_gmt >= (current_date - 30)
+    AND copy_num = '1'
+
+  order by item_view.record_creation_date_gmt desc, location_code desc
+LIMIT 30
+)
+
+union 
+(
+ SELECT DISTINCT 
+    bib_view.record_num as recordnum, 
+  best_title as title,
+  best_author as author,
+   'ebook' as location_code,
+  cataloging_date_gmt as date
+  FROM sierra_view.bib_view
+ LEFT JOIN sierra_view.bib_record_property
+    ON sierra_view.bib_view.id = sierra_view.bib_record_property.bib_record_id
+WHERE 
+    bcode3 = '-'
+  and bcode2='h'
+   
+   and cataloging_date_gmt >= (current_date - 30)
+ LIMIT 30
+  )
   `
   return await sierraPool.query(sql)
 }

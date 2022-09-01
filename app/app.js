@@ -65,7 +65,8 @@ Handlebars.registerHelper('isSelected', (value1, value2) => (value1 === value2 ?
 
 // used for setting the value of a select input
 Handlebars.registerHelper('changeStr', (value) =>
-  (value === true ? '<span class="green"><i class="fas fa-check-circle"></i> Not Checked Out</span>'
+  (value === true
+    ? '<span class="green"><i class="fas fa-check-circle"></i> Not Checked Out</span>'
     : '<span class="red"><i class="fas fa-times-circle"></i> Checked Out</span>')
 )
 

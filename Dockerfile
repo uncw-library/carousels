@@ -2,9 +2,9 @@ FROM amd64/node:15-alpine
 
 RUN apk update && \
   apk upgrade && \
-  apk add ca-certificates && update-ca-certificates
+  apk add ca-certificates && update-ca-certificates && \
+  apk add --update tzdata
 
-RUN apk add --update tzdata
 ENV TZ=America/New_York
 
 RUN rm -rf /var/cache/apk/*

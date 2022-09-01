@@ -4,6 +4,7 @@ services:
     build: .
     container_name: carousels
     image: libapps-admin.uncw.edu:8000/randall-dev/carousels
+    platform: linux/x86_64/v8
     ports:
       - "3000:3000"
     env_file: .env

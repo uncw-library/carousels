@@ -59,16 +59,10 @@ docker-compose up --build
 "http://localhost:3000"
 ```
 
-#### To run tests on dev box
-
-  - `npm install --only=dev`
-  - `npm run test`
-  - (none yet)
-
 #### To lint the dev box
 
   - `npm install --only=dev`
-  - `npx eslint app/`
+  - `npx standard`
 
 ### To build a prod box
 
